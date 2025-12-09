@@ -1,0 +1,101 @@
+.window {
+    position: absolute;
+
+    min-width: 420px;
+    min-height: 260px;
+
+    border-radius: 16px;
+    padding: 0;
+    /* on gère tout via titleBar + content */
+
+    /* Effet glass de base */
+    background: rgba(116, 116, 116, 0.47);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+
+
+
+    animation: windowEnter 0.35s ease-out;
+
+
+
+}
+
+/* À compléter pour la titleBar */
+.titleBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 36px;
+    padding: 0 12px;
+
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.08),
+            rgba(0, 0, 0, 0.1));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    cursor: grab;
+    user-select: none;
+}
+
+/* À compléter pour le titre et les actions */
+.title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Zone de contenu */
+.content {
+  padding: 16px 18px 18px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 30%, #ffffff, #ff4b5c);
+    opacity: 0.85;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.dot:nth-child(2) {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #ffb84b);
+}
+
+.dot:nth-child(3) {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #3bd16f);
+}
+
+.dot:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+@keyframes windowEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) translateX(8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
