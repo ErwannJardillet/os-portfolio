@@ -1,37 +1,84 @@
 // Window.jsx
+import { useState, useRef } from "react";
 import styles from "./Window.module.css";
 
 export default function Window({
-    title = "PlaceHolder",
-    children = "PlaceHolder",
-    initialTop = "50%",
-    initialLeft = "50%",
-    width = "100px",
-    height = "100px",
+  id,
+  title = "PlaceHolder",
+  children = "PlaceHolder",
+  initialTop = "100",   // en px pour le moment
+  initialLeft = "100",  // en px pour le moment
+  width = "400px",
+  height = "260px",
+  onClose,
+  onFocus,
+  zIndex,
 }) {
+  // Position locale de la fenêtre
+  const [position, setPosition] = useState({
+    top: parseInt(initialTop, 10),
+    left: parseInt(initialLeft, 10),
+  });
 
-    const style = {
-        top: initialTop,
-        left: initialLeft,
+  // Décalage entre la souris et le coin de la fenêtre
+  const dragOffset = useRef({ x: 0, y: 0 });
+
+  function onDrag(e) {
+    setPosition({
+      top: e.clientY - dragOffset.current.y,
+      left: e.clientX - dragOffset.current.x,
+    });
+  }
+
+  function startDrag(e) {
+    // Mettre la fenêtre au premier plan
+    onFocus && onFocus(id);
+
+    dragOffset.current = {
+      x: e.clientX - position.left,
+      y: e.clientY - position.top,
     };
 
-    if (width) style.width = width;
-    if (height) style.height = height;
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+  }
 
-    return (
-        <div className={styles.window} style={style}>
-            <div className={styles.titleBar}>
-                <div className={styles.title}>{title}</div>
-                <div className={styles.actions}>
-                    <span className={styles.dot} />
-                    <span className={styles.dot} />
-                    <span className={styles.dot} />
-                </div>
-            </div>
+  function stopDrag() {
+    window.removeEventListener("mousemove", onDrag);
+    window.removeEventListener("mouseup", stopDrag);
+  }
 
-            <div className={styles.content}>
-                {children}
-            </div>
+  // Style de base de la fenêtre
+  const style = {
+    top: position.top,
+    left: position.left,
+    zIndex,
+  };
+
+  if (width) style.width = width;
+  if (height) style.height = height;
+
+  return (
+    <div
+      className={styles.window}
+      style={style}
+    >
+      <div
+        className={styles.titleBar}
+        onMouseDown={startDrag}
+      >
+        <div className={styles.title}>{title}</div>
+        <div className={styles.actions}>
+          <span
+            className={styles.dot}
+            onClick={() => onClose && onClose(id)}
+          />
+          <span className={styles.dot} />
+          <span className={styles.dot} />
         </div>
-    );
+      </div>
+
+      <div className={styles.content}>{children}</div>
+    </div>
+  );
 }
