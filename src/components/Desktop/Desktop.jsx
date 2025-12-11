@@ -1,5 +1,6 @@
 import styles from "./Desktop.module.css";
 import Window from "../Window/Window";
+import Taskbar from "../Taskbar/Taskbar";
 import { windowsConfig } from "./windowsConfig";
 import { useState } from "react";
 
@@ -51,6 +52,8 @@ export default function Desktop() {
           <p>{win.content}</p>
         </Window>
       ))}
+
+      <Taskbar/>
     </div>
   );
 }

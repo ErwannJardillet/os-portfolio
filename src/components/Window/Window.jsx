@@ -23,12 +23,32 @@ export default function Window({
   // Décalage entre la souris et le coin de la fenêtre
   const dragOffset = useRef({ x: 0, y: 0 });
 
-  function onDrag(e) {
-    setPosition({
-      top: e.clientY - dragOffset.current.y,
-      left: e.clientX - dragOffset.current.x,
-    });
-  }
+function onDrag(e) {
+  let newTop = e.clientY - dragOffset.current.y;
+  let newLeft = e.clientX - dragOffset.current.x;
+
+  const TASKBAR_HEIGHT = 52;    // même valeur que ta .taskbar (height)
+  const TITLEBAR_HEIGHT = 36;   // hauteur approximative de .titleBar
+  const MARGIN = 8;             // petit espace de sécurité
+
+  const minTop = MARGIN;
+  const maxTop =
+    window.innerHeight - TASKBAR_HEIGHT - TITLEBAR_HEIGHT - MARGIN;
+
+  // On empêche la titleBar de passer sous la taskbar
+  newTop = Math.min(Math.max(newTop, minTop), maxTop);
+
+  // Optionnel : empêcher de sortir trop à gauche / droite
+  const minLeft = MARGIN;
+  const maxLeft = window.innerWidth - MARGIN - 200; // 200 = largeur minimale approximative
+  newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
+
+  setPosition({
+    top: newTop,
+    left: newLeft,
+  });
+}
+
 
   function startDrag(e) {
     // Mettre la fenêtre au premier plan
@@ -62,6 +82,7 @@ export default function Window({
     <div
       className={styles.window}
       style={style}
+      onMouseDown={(e) => onFocus && onFocus(id)}
     >
       <div
         className={styles.titleBar}
