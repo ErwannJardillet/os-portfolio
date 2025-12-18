@@ -59,6 +59,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 /* Items système (heure, date, icônes…) */
@@ -67,6 +68,10 @@
   align-items: center;
   gap: 6px;
   opacity: 0.9;
+}
+
+.systemItem:nth-child(1) {
+  white-space: nowrap;
 }
 
 /* Batterie */
@@ -119,4 +124,11 @@
 }
 .bar:nth-child(3) {
   height: 12px;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 6px;
 }

@@ -1,12 +1,20 @@
 // Taskbar.jsx
 import styles from "./Taskbar.module.css";
+import { useEffect, useState } from "react";
+
 
 export default function Taskbar() {
-  // Pour l’instant : valeurs statiques
-  const time = "14:35";
-  const date = "Mar 10 Déc";
   const batteryLevel = 78; // en pourcentage
   const wifiStrength = 3;  // sur 3
+  const [now, setNow] = useState(new Date());
+  const time = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  const date = now.toLocaleDateString("fr-FR", { weekday: "short", day: "2-digit", month: "short" });
+
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className={styles.taskbar}>
@@ -21,6 +29,7 @@ export default function Taskbar() {
       {/* Zone droite : infos système */}
       <div className={styles.rightArea}>
         <div className={styles.systemItem}>{date}</div>
+        <div className={styles.divider}></div>
         <div className={styles.systemItem}>{time}</div>
 
         <div className={styles.systemItem}>
@@ -34,6 +43,8 @@ export default function Taskbar() {
             <div className={styles.batteryTip} />
           </div>
         </div>
+
+        <div className={styles.divider}></div>
 
         <div className={styles.systemItem}>
           <div className={styles.wifiBars}>
