@@ -3,6 +3,7 @@ import Window from "../Window/Window";
 import Taskbar from "../Taskbar/Taskbar";
 import { windowsConfig } from "./windowsConfig";
 import { useState } from "react";
+import DesktopIcon from "../DesktopIcon/DesktopIcon";
 
 
 export default function Desktop() {
@@ -32,11 +33,60 @@ export default function Desktop() {
   }
 
 
+  function openWindow(windowData) {
+    setWindows((prev) => {
+      const exists = prev.find(w => w.id === windowData.id);
+      if (exists) {
+        handleFocus(windowData.id);
+        return prev;
+      }
+
+      const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
+
+      return [
+        ...prev,
+        { ...windowData, zIndex: maxZ + 1 }
+      ];
+    });
+  }
 
 
 
   return (
     <div className={styles.desktop}>
+
+      <div className={styles.iconsArea}>
+        <DesktopIcon
+          label="About"
+          onOpen={() =>
+            openWindow({
+              id: "about",
+              title: "About Me",
+              initialTop: "120",
+              initialLeft: "120",
+              width: "520px",
+              content: "Contenu About",
+            })
+          }
+        />
+
+        <DesktopIcon
+          label="Projects"
+          onOpen={() =>
+            openWindow({
+              id: "projects",
+              title: "Projects",
+              initialTop: "160",
+              initialLeft: "160",
+              width: "520px",
+              content: "Contenu Projects",
+            })
+          }
+        />
+      </div>
+
+
+
       {windows.map((win) => (
         <Window
           key={win.id}
@@ -53,7 +103,7 @@ export default function Desktop() {
         </Window>
       ))}
 
-      <Taskbar/>
+      <Taskbar />
     </div>
   );
 }
