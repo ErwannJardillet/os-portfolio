@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 export default function Taskbar() {
   const batteryLevel = 78; // en pourcentage
-  const wifiStrength = 3;  // sur 3
   const [now, setNow] = useState(new Date());
   const time = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   const date = now.toLocaleDateString("fr-FR", { weekday: "short", day: "2-digit", month: "short" });

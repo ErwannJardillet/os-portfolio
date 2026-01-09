@@ -1,0 +1,50 @@
+.skills {
+  padding: 20px;
+  color: var(--text-color);
+}
+
+.skills h2 {
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.skills p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.skillsGrid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.skillCategory {
+  padding: 16px;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.1));
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.skillCategory h3 {
+  margin-bottom: 12px;
+  color: var(--text-color);
+  font-size: 1.1em;
+}
+
+.skillCategory ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.skillCategory li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+}
+
+.skillCategory li:last-child {
+  border-bottom: none;
+}
+

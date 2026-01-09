@@ -9,15 +9,25 @@ export default function Window({
   initialTop = "100",   // en px pour le moment
   initialLeft = "100",  // en px pour le moment
   width = "400px",
-  height = "260px",
+  height = null,  // null par défaut pour permettre l'adaptation automatique au contenu
   onClose,
   onFocus,
   zIndex,
 }) {
+  // Fonction pour convertir initialTop/initialLeft en pixels
+  const parsePosition = (value, isTop = false) => {
+    if (typeof value === 'string' && value.includes('%')) {
+      const percent = parseFloat(value);
+      const dimension = isTop ? window.innerHeight : window.innerWidth;
+      return (dimension * percent) / 100;
+    }
+    return parseInt(value, 10) || 100;
+  };
+
   // Position locale de la fenêtre
   const [position, setPosition] = useState({
-    top: parseInt(initialTop, 10),
-    left: parseInt(initialLeft, 10),
+    top: parsePosition(initialTop, true),
+    left: parsePosition(initialLeft, false),
   });
 
   // Décalage entre la souris et le coin de la fenêtre
@@ -76,13 +86,20 @@ function onDrag(e) {
   };
 
   if (width) style.width = width;
-  if (height) style.height = height;
+  // Si height est spécifié, l'utiliser, sinon adapter automatiquement au contenu
+  if (height) {
+    style.height = height;
+  } else {
+    // Hauteur automatique avec limites pour éviter de dépasser l'écran
+    style.maxHeight = 'calc(100vh - 120px)';
+  }
 
   return (
     <div
       className={styles.window}
       style={style}
-      onMouseDown={(e) => onFocus && onFocus(id)}
+      data-window={id}
+      onMouseDown={() => onFocus && onFocus(id)}
     >
       <div
         className={styles.titleBar}

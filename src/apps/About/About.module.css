@@ -1,0 +1,15 @@
+.about {
+  padding: 20px;
+  color: var(--text-color);
+}
+
+.about h2 {
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.about p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+

@@ -1,0 +1,26 @@
+.contact {
+  padding: 20px;
+  color: var(--text-color);
+}
+
+.contact h2 {
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.contact p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.placeholder {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.1));
+  border-radius: 8px;
+}
+
+.placeholder p {
+  margin: 8px 0;
+}
+

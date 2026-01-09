@@ -1,19 +1,131 @@
 import styles from "./Desktop.module.css";
 import Window from "../Window/Window";
 import Taskbar from "../Taskbar/Taskbar";
-import { windowsConfig } from "./windowsConfig";
 import { useState } from "react";
 import DesktopIcon from "../DesktopIcon/DesktopIcon";
+import About from "../../apps/About/About";
+import Contact from "../../apps/Contact/Contact";
+import Projects from "../../apps/Projects/Projects";
+import Skills from "../../apps/Skills/Skills";
+
+// Mapping des composants pour éviter les if/else
+const componentMap = {
+  About,
+  Contact,
+  Projects,
+  Skills,
+};
 
 
 export default function Desktop() {
 
-  const [windows, setWindows] = useState(
-    windowsConfig.map((win, index) => ({
-      ...win,
-      zIndex: index + 1,  // chaque fenêtre a un z-index initial
-    }))
-  );
+  // Initialiser avec un tableau vide - les fenêtres s'ouvrent via les icônes
+  const [windows, setWindows] = useState([]);
+  const [selectedIcon, setSelectedIcon] = useState(null);
+  
+  // Positions des icônes sur le bureau
+  const [iconPositions, setIconPositions] = useState({
+    about: { x: 24, y: 24 },
+    projects: { x: 24, y: 136 },
+    contact: { x: 24, y: 248 },
+    skills: { x: 24, y: 360 }
+  });
+
+  // Constantes pour la détection de collision
+  const ICON_WIDTH = 80;
+  const ICON_HEIGHT = 100;
+
+  // Vérifie si deux positions se chevauchent réellement
+  // Permet le placement vertical (au-dessus/en dessous) tant qu'il n'y a pas de chevauchement vertical
+  function checkCollision(pos1, pos2) {
+    // Calculer les rectangles des deux icônes
+    const rect1 = {
+      left: pos1.x,
+      right: pos1.x + ICON_WIDTH,
+      top: pos1.y,
+      bottom: pos1.y + ICON_HEIGHT
+    };
+    
+    const rect2 = {
+      left: pos2.x,
+      right: pos2.x + ICON_WIDTH,
+      top: pos2.y,
+      bottom: pos2.y + ICON_HEIGHT
+    };
+    
+    // Vérifier le chevauchement horizontal (les rectangles se chevauchent horizontalement)
+    // Utiliser < strict pour exclure les cas où les rectangles sont juste adjacents
+    const horizontalOverlap = rect1.right > rect2.left && rect1.left < rect2.right;
+    
+    // Vérifier le chevauchement vertical (les rectangles se chevauchent verticalement)
+    // Utiliser < strict pour exclure les cas où les rectangles sont juste adjacents
+    const verticalOverlap = rect1.bottom > rect2.top && rect1.top < rect2.bottom;
+    
+    // Collision seulement si les deux se chevauchent (horizontal ET vertical)
+    // Cela permet le placement vertical (même colonne) tant qu'il n'y a pas de chevauchement vertical
+    return horizontalOverlap && verticalOverlap;
+  }
+
+  // Trouve la position la plus proche sans collision
+  function findNearestFreePosition(targetPosition, allPositions, currentId) {
+    const GRID_SIZE = 100;
+    const margin = 24;
+    
+    // Vérifier d'abord si la position cible est libre
+    const hasCollision = Object.entries(allPositions).some(
+      ([id, pos]) => id !== currentId && checkCollision(targetPosition, pos)
+    );
+    
+    if (!hasCollision) {
+      return targetPosition;
+    }
+
+    // Chercher une position libre autour de la position cible
+    const maxRadius = 500; // Rayon de recherche maximum
+    const desktop = document.querySelector('[class*="desktop"]');
+    if (!desktop) return targetPosition;
+    
+    const desktopRect = desktop.getBoundingClientRect();
+    const maxX = desktopRect.width - ICON_WIDTH - margin;
+    const maxY = desktopRect.height - ICON_HEIGHT - margin;
+
+    // Chercher en spirale autour de la position cible
+    for (let radius = GRID_SIZE; radius <= maxRadius; radius += GRID_SIZE) {
+      for (let angle = 0; angle < 360; angle += 45) {
+        const rad = (angle * Math.PI) / 180;
+        const testX = Math.round((targetPosition.x + Math.cos(rad) * radius) / GRID_SIZE) * GRID_SIZE;
+        const testY = Math.round((targetPosition.y + Math.sin(rad) * radius) / GRID_SIZE) * GRID_SIZE;
+        
+        const clampedX = Math.max(margin, Math.min(testX, maxX));
+        const clampedY = Math.max(margin, Math.min(testY, maxY));
+        
+        const testPosition = { x: clampedX, y: clampedY };
+        
+        const hasTestCollision = Object.entries(allPositions).some(
+          ([id, pos]) => id !== currentId && checkCollision(testPosition, pos)
+        );
+        
+        if (!hasTestCollision) {
+          return testPosition;
+        }
+      }
+    }
+
+    // Si aucune position libre n'est trouvée, retourner la position originale
+    return targetPosition;
+  }
+
+  function handleIconPositionChange(id, newPosition) {
+    setIconPositions((prev) => {
+      // Vérifier les collisions avec les autres icônes
+      const freePosition = findNearestFreePosition(newPosition, prev, id);
+      
+      return {
+        ...prev,
+        [id]: freePosition
+      };
+    });
+  }
 
 
   function handleClose(id) {
@@ -22,7 +134,9 @@ export default function Desktop() {
 
   function handleFocus(id) {
     setWindows((prev) => {
-      const maxZ = Math.max(...prev.map(w => w.zIndex)); // trouve le plus haut z-index actuel
+      if (prev.length === 0) return prev;
+      
+      const maxZ = Math.max(...prev.map(w => w.zIndex), 0); // trouve le plus haut z-index actuel
 
       return prev.map((w) =>
         w.id === id
@@ -53,55 +167,121 @@ export default function Desktop() {
 
 
   return (
-    <div className={styles.desktop}>
+    <div 
+      className={styles.desktop}
+      onClick={(e) => {
+        // Désélectionner si on clique sur le desktop (pas sur une icône ou une fenêtre)
+        const clickedIcon = e.target.closest(`[data-icon-id]`);
+        const clickedWindow = e.target.closest(`[data-window]`);
+        if (!clickedIcon && !clickedWindow) {
+          setSelectedIcon(null);
+        }
+      }}
+    >
 
       <div className={styles.iconsArea}>
         <DesktopIcon
+          id="about"
           label="About"
-          onOpen={() =>
+          position={iconPositions.about}
+          isSelected={selectedIcon === "about"}
+          onSelect={() => setSelectedIcon("about")}
+          onPositionChange={(newPosition) => handleIconPositionChange("about", newPosition)}
+          onOpen={() => {
             openWindow({
               id: "about",
               title: "About Me",
               initialTop: "120",
               initialLeft: "120",
               width: "520px",
-              content: "Contenu About",
-            })
-          }
+              component: "About",
+            });
+            setSelectedIcon(null);
+          }}
         />
 
         <DesktopIcon
+          id="projects"
           label="Projects"
-          onOpen={() =>
+          position={iconPositions.projects}
+          isSelected={selectedIcon === "projects"}
+          onSelect={() => setSelectedIcon("projects")}
+          onPositionChange={(newPosition) => handleIconPositionChange("projects", newPosition)}
+          onOpen={() => {
             openWindow({
               id: "projects",
               title: "Projects",
               initialTop: "160",
               initialLeft: "160",
               width: "520px",
-              content: "Contenu Projects",
-            })
-          }
+              component: "Projects",
+            });
+            setSelectedIcon(null);
+          }}
+        />
+
+        <DesktopIcon
+          id="contact"
+          label="Contact"
+          position={iconPositions.contact}
+          isSelected={selectedIcon === "contact"}
+          onSelect={() => setSelectedIcon("contact")}
+          onPositionChange={(newPosition) => handleIconPositionChange("contact", newPosition)}
+          onOpen={() => {
+            openWindow({
+              id: "contact",
+              title: "Contact",
+              initialTop: "200",
+              initialLeft: "200",
+              width: "520px",
+              component: "Contact",
+            });
+            setSelectedIcon(null);
+          }}
+        />
+
+        <DesktopIcon
+          id="skills"
+          label="Skills"
+          position={iconPositions.skills}
+          isSelected={selectedIcon === "skills"}
+          onSelect={() => setSelectedIcon("skills")}
+          onPositionChange={(newPosition) => handleIconPositionChange("skills", newPosition)}
+          onOpen={() => {
+            openWindow({
+              id: "skills",
+              title: "Skills",
+              initialTop: "240",
+              initialLeft: "240",
+              width: "520px",
+              component: "Skills",
+            });
+            setSelectedIcon(null);
+          }}
         />
       </div>
 
 
 
-      {windows.map((win) => (
-        <Window
-          key={win.id}
-          title={win.title}
-          id={win.id}
-          initialTop={win.initialTop}
-          initialLeft={win.initialLeft}
-          width={win.width}
-          onClose={handleClose}
-          onFocus={handleFocus}
-          zIndex={win.zIndex}
-        >
-          <p>{win.content}</p>
-        </Window>
-      ))}
+      {windows.map((win) => {
+        const Component = componentMap[win.component];
+
+        return (
+          <Window
+            key={win.id}
+            title={win.title}
+            id={win.id}
+            initialTop={win.initialTop}
+            initialLeft={win.initialLeft}
+            width={win.width}
+            onClose={handleClose}
+            onFocus={handleFocus}
+            zIndex={win.zIndex}
+          >
+            {Component ? <Component /> : <p>{win.content}</p>}
+          </Window>
+        );
+      })}
 
       <Taskbar />
     </div>
