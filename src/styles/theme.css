@@ -1,0 +1,12 @@
+/* Polices d'écriture */
+:root {
+  /* Police pour les titres d'apps (dans la titleBar) */
+  --font-app-title: 'Orbitron', sans-serif;
+  
+  /* Police pour les titres dans les apps (h2, h3) */
+  --font-heading: 'Space Grotesk', sans-serif;
+  
+  /* Police pour le corps du texte */
+  --font-body: 'Inter', sans-serif;
+}
+

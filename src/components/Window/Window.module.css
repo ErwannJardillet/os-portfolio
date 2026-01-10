@@ -49,9 +49,11 @@
 
 /* À compléter pour le titre et les actions */
 .title {
+    font-family: var(--font-app-title, 'Orbitron', sans-serif);
     font-size: 0.9rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
 .actions {
@@ -63,13 +65,31 @@
 /* Zone de contenu */
 .content {
   padding: 16px 18px 18px;
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
   min-height: 0; /* Permet au flex de fonctionner correctement avec overflow */
+}
+
+/* Styles pour les titres dans le contenu */
+.content h2 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.content h3 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
 }
 
 /* Scrollbar personnalisée pour le contenu */

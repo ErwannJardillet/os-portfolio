@@ -182,7 +182,7 @@ export default function Desktop() {
       <div className={styles.iconsArea}>
         <DesktopIcon
           id="about"
-          label="About"
+          label="À propos"
           iconImage="/icons/about-icon.png"
           position={iconPositions.about}
           isSelected={selectedIcon === "about"}
@@ -191,7 +191,7 @@ export default function Desktop() {
           onOpen={() => {
             openWindow({
               id: "about",
-              title: "About Me",
+              title: "À propos",
               initialTop: "120",
               initialLeft: "120",
               width: "520px",
@@ -203,7 +203,7 @@ export default function Desktop() {
 
         <DesktopIcon
           id="projects"
-          label="Projects"
+          label="Projets"
           iconImage="/icons/projects-icon.png"
           position={iconPositions.projects}
           isSelected={selectedIcon === "projects"}
@@ -212,7 +212,7 @@ export default function Desktop() {
           onOpen={() => {
             openWindow({
               id: "projects",
-              title: "Projects",
+              title: "Projets",
               initialTop: "160",
               initialLeft: "160",
               width: "520px",
@@ -245,7 +245,7 @@ export default function Desktop() {
 
         <DesktopIcon
           id="skills"
-          label="Skills"
+          label="Compétences"
           iconImage="/icons/skills-icon.png"
           position={iconPositions.skills}
           isSelected={selectedIcon === "skills"}
@@ -254,7 +254,7 @@ export default function Desktop() {
           onOpen={() => {
             openWindow({
               id: "skills",
-              title: "Skills",
+              title: "Compétences",
               initialTop: "240",
               initialLeft: "240",
               width: "520px",

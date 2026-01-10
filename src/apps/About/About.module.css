@@ -4,6 +4,10 @@
 }
 
 .about h2 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
   margin-bottom: 16px;
   color: var(--text-color);
 }
@@ -11,6 +15,33 @@
 .about p {
   margin-bottom: 12px;
   line-height: 1.6;
+}
+
+.about section {
+  margin-bottom: 24px;
+}
+
+.about section:last-child {
+  margin-bottom: 0;
+}
+
+.about h3 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+.about ul {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.about li {
+  margin-bottom: 8px;
 }
 
 

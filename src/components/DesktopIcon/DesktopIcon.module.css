@@ -74,7 +74,11 @@
 }
 
 .iconLabel {
-  font-size: 0.8125rem;
+  font-family: var(--font-app-title, 'Orbitron', sans-serif);
+  font-size: 0.7rem;
   text-align: center;
   line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 400;
 }

@@ -10,7 +10,7 @@
   box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.05);
   
   color: white;
-  font-family: sans-serif;
+  font-family: var(--font-body, 'Inter', sans-serif);
   
   position: relative; /* important pour les futures fenêtres */
 }

@@ -4,6 +4,10 @@
 }
 
 .skills h2 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
   margin-bottom: 16px;
   color: var(--text-color);
 }
@@ -28,9 +32,12 @@
 }
 
 .skillCategory h3 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
   margin-bottom: 12px;
   color: var(--text-color);
-  font-size: 1.1em;
 }
 
 .skillCategory ul {

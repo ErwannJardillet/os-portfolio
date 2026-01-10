@@ -4,6 +4,10 @@
 }
 
 .projects h2 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
   margin-bottom: 16px;
   color: var(--text-color);
 }
@@ -28,14 +32,39 @@
 }
 
 .projectCard h3 {
-  margin-bottom: 8px;
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
   color: var(--text-color);
 }
 
-.projectCard p {
-  margin: 0;
+.projectMeta {
+  margin-bottom: 12px;
   font-size: 0.9em;
   opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.projectType {
+  padding: 4px 8px;
+  background: var(--bg-tertiary, rgba(0, 0, 0, 0.2));
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.projectCard ul {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.projectCard li {
+  margin-bottom: 6px;
 }
 
 

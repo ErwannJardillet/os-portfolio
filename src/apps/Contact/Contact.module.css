@@ -4,6 +4,10 @@
 }
 
 .contact h2 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
   margin-bottom: 16px;
   color: var(--text-color);
 }
@@ -13,15 +17,38 @@
   line-height: 1.6;
 }
 
-.placeholder {
+.contactInfo {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contactItem {
   padding: 16px;
   background: var(--bg-secondary, rgba(0, 0, 0, 0.1));
   border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
 }
 
-.placeholder p {
-  margin: 8px 0;
+.contactItem strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.contactItem a {
+  color: var(--accent-color, #007bff);
+  text-decoration: none;
+}
+
+.contactItem a:hover {
+  text-decoration: underline;
+}
+
+.contactItem p {
+  margin: 8px 0 0 0;
+  line-height: 1.6;
 }
 
 
