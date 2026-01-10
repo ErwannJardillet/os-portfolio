@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 
 const GRID_SIZE = 100; // Taille de la grille pour le snap
 
-export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, position, onPositionChange }) {
+export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, position, onPositionChange, iconImage }) {
   const [isDragging, setIsDragging] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(position);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
@@ -137,11 +137,19 @@ export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, p
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
-      <div className={styles.iconImage}>
-        {/* Placeholder icône */}
-        <span className={styles.iconLetter}>
-          {label[0]}
-        </span>
+      <div className={`${styles.iconImage} ${iconImage ? styles.hasImage : ''}`}>
+        {iconImage ? (
+          <img 
+            src={iconImage} 
+            alt={label}
+            className={`${styles.iconImg} ${id === 'contact' ? styles.fullSize : ''}`}
+            draggable="false"
+          />
+        ) : (
+          <span className={styles.iconLetter}>
+            {label[0]}
+          </span>
+        )}
       </div>
 
       <span className={styles.iconLabel}>{label}</span>

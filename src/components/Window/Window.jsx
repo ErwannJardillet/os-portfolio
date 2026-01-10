@@ -1,5 +1,5 @@
 // Window.jsx
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import styles from "./Window.module.css";
 
 export default function Window({
@@ -33,13 +33,22 @@ export default function Window({
   // Décalage entre la souris et le coin de la fenêtre
   const dragOffset = useRef({ x: 0, y: 0 });
 
+  // Constantes pour le calcul de hauteur maximale
+  const TASKBAR_HEIGHT = 52;
+  const TITLEBAR_HEIGHT = 36;
+  const MARGIN = 8;
+
+  // Calculer la hauteur maximale en fonction de la position
+  const maxHeight = useMemo(() => {
+    if (height) return null; // Si height est spécifiée, pas de limitation
+    
+    const availableHeight = window.innerHeight - position.top - TASKBAR_HEIGHT - MARGIN;
+    return Math.max(200, availableHeight); // Minimum de 200px pour la hauteur
+  }, [position.top, height]);
+
 function onDrag(e) {
   let newTop = e.clientY - dragOffset.current.y;
   let newLeft = e.clientX - dragOffset.current.x;
-
-  const TASKBAR_HEIGHT = 52;    // même valeur que ta .taskbar (height)
-  const TITLEBAR_HEIGHT = 36;   // hauteur approximative de .titleBar
-  const MARGIN = 8;             // petit espace de sécurité
 
   const minTop = MARGIN;
   const maxTop =
@@ -90,8 +99,8 @@ function onDrag(e) {
   if (height) {
     style.height = height;
   } else {
-    // Hauteur automatique avec limites pour éviter de dépasser l'écran
-    style.maxHeight = 'calc(100vh - 120px)';
+    // Hauteur maximale calculée dynamiquement selon la position pour éviter de dépasser en bas
+    style.maxHeight = `${maxHeight}px`;
   }
 
   return (

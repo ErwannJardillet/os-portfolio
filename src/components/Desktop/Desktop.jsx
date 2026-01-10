@@ -183,6 +183,7 @@ export default function Desktop() {
         <DesktopIcon
           id="about"
           label="About"
+          iconImage="/icons/about-icon.png"
           position={iconPositions.about}
           isSelected={selectedIcon === "about"}
           onSelect={() => setSelectedIcon("about")}
@@ -203,6 +204,7 @@ export default function Desktop() {
         <DesktopIcon
           id="projects"
           label="Projects"
+          iconImage="/icons/projects-icon.png"
           position={iconPositions.projects}
           isSelected={selectedIcon === "projects"}
           onSelect={() => setSelectedIcon("projects")}
@@ -223,6 +225,7 @@ export default function Desktop() {
         <DesktopIcon
           id="contact"
           label="Contact"
+          iconImage="/icons/contact-icon.png"
           position={iconPositions.contact}
           isSelected={selectedIcon === "contact"}
           onSelect={() => setSelectedIcon("contact")}
@@ -243,6 +246,7 @@ export default function Desktop() {
         <DesktopIcon
           id="skills"
           label="Skills"
+          iconImage="/icons/skills-icon.png"
           position={iconPositions.skills}
           isSelected={selectedIcon === "skills"}
           onSelect={() => setSelectedIcon("skills")}
