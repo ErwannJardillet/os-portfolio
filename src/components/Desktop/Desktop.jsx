@@ -7,6 +7,7 @@ import About from "../../apps/About/About";
 import Contact from "../../apps/Contact/Contact";
 import Projects from "../../apps/Projects/Projects";
 import Skills from "../../apps/Skills/Skills";
+import WallpaperShaderGradient from "../Wallpaper/WallpaperShaderGradient.jsx";
 
 // Mapping des composants pour éviter les if/else
 const componentMap = {
@@ -178,6 +179,7 @@ export default function Desktop() {
         }
       }}
     >
+      <WallpaperShaderGradient />
 
       <div className={styles.iconsArea}>
         <DesktopIcon

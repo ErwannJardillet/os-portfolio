@@ -3,8 +3,8 @@
   height: 100vh;
   overflow: hidden;
 
-  /* Fond temporaire futuriste simple */
-  background: radial-gradient(circle at center, #407f89 0%, #1c202f 100%);
+  /* Fallback si WebGL indisponible / canvas non rendu */
+  background: radial-gradient(circle at center, #2b5a61 0%, #0d1018 100%);
   
   /* Petite touche de glow sur les bords */
   box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.05);
@@ -22,6 +22,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 1;
 }
 
 .iconsArea > * {
