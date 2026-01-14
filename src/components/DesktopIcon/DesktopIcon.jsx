@@ -1,7 +1,10 @@
 import styles from "./DesktopIcon.module.css";
 import { useState, useEffect, useRef } from "react";
 
-const GRID_SIZE = 100; // Taille de la grille pour le snap
+const GRID_SIZE_X = 100; // Taille de la grille horizontale pour le snap
+const GRID_SIZE_Y = 112; // Taille de la grille verticale pour le snap (correspond à l'espacement initial)
+const GRID_OFFSET_X = 24; // Décalage horizontal de la grille pour correspondre aux positions initiales
+const GRID_OFFSET_Y = 24; // Décalage vertical de la grille pour correspondre aux positions initiales
 
 export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, position, onPositionChange, iconImage }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -82,9 +85,9 @@ export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, p
       const clampedX = Math.max(margin, Math.min(finalX, maxX));
       const clampedY = Math.max(margin, Math.min(finalY, maxY));
       
-      // Appliquer le snap sur grille
-      const snappedX = Math.round(clampedX / GRID_SIZE) * GRID_SIZE;
-      const snappedY = Math.round(clampedY / GRID_SIZE) * GRID_SIZE;
+      // Appliquer le snap sur grille avec offset pour correspondre aux positions initiales
+      const snappedX = Math.round((clampedX - GRID_OFFSET_X) / GRID_SIZE_X) * GRID_SIZE_X + GRID_OFFSET_X;
+      const snappedY = Math.round((clampedY - GRID_OFFSET_Y) / GRID_SIZE_Y) * GRID_SIZE_Y + GRID_OFFSET_Y;
       
       const finalPosition = { x: snappedX, y: snappedY };
       setCurrentPosition(finalPosition);

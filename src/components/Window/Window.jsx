@@ -30,6 +30,9 @@ export default function Window({
     left: parsePosition(initialLeft, false),
   });
 
+  // État pour gérer l'animation de fermeture
+  const [isClosing, setIsClosing] = useState(false);
+
   // Décalage entre la souris et le coin de la fenêtre
   const dragOffset = useRef({ x: 0, y: 0 });
 
@@ -87,6 +90,15 @@ function onDrag(e) {
     window.removeEventListener("mouseup", stopDrag);
   }
 
+  // Gestion de la fermeture avec animation
+  function handleClose() {
+    setIsClosing(true);
+    // Attendre la fin de l'animation avant d'appeler onClose
+    setTimeout(() => {
+      onClose && onClose(id);
+    }, 300); // Durée de l'animation de fermeture
+  }
+
   // Style de base de la fenêtre
   const style = {
     top: position.top,
@@ -105,7 +117,7 @@ function onDrag(e) {
 
   return (
     <div
-      className={styles.window}
+      className={`${styles.window} ${isClosing ? styles.closing : ''}`}
       style={style}
       data-window={id}
       onMouseDown={() => onFocus && onFocus(id)}
@@ -116,12 +128,13 @@ function onDrag(e) {
       >
         <div className={styles.title}>{title}</div>
         <div className={styles.actions}>
-          <span
-            className={styles.dot}
-            onClick={() => onClose && onClose(id)}
-          />
-          <span className={styles.dot} />
-          <span className={styles.dot} />
+          <button
+            className={styles.closeButton}
+            onClick={handleClose}
+            aria-label="Fermer"
+          >
+            <span className={styles.closeIcon}>×</span>
+          </button>
         </div>
       </div>
 

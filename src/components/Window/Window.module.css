@@ -24,9 +24,10 @@
 
 
     animation: windowEnter 0.35s ease-out;
+}
 
-
-
+.window.closing {
+    animation: windowExit 0.3s ease-in forwards;
 }
 
 /* À compléter pour la titleBar */
@@ -92,45 +93,64 @@
   margin-bottom: 0.75rem;
 }
 
-/* Scrollbar personnalisée pour le contenu */
+/* Scrollbar personnalisée pour le contenu - style sobre et discret */
+.content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
 .content::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+  background: transparent;
 }
 
 .content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  transition: background 0.2s ease;
 }
 
 .content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.dot {
-    width: 15px;
-    height: 15px;
-    border-radius: 999px;
-    background: radial-gradient(circle at 30% 30%, #ffffff, #ff4b5c);
-    opacity: 0.85;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+.closeButton {
+    width: 24px;
+    height: 24px;
+    margin: 18px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 4px;
+    transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
-.dot:nth-child(2) {
-    background: radial-gradient(circle at 30% 30%, #ffffff, #ffb84b);
-}
-
-.dot:nth-child(3) {
-    background: radial-gradient(circle at 30% 30%, #ffffff, #3bd16f);
-}
-
-.dot:hover {
+.closeButton:hover {
     transform: scale(1.1);
-    opacity: 1;
+    font-weight: 600;
+}
+
+.closeButton:active {
+    transform: scale(0.95);
+}
+
+.closeIcon {
+    font-size: 20px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 300;
+    transition: color 0.15s ease;
+}
+
+.closeButton:hover .closeIcon {
+    color: rgba(255, 255, 255, 1);
 }
 
 @keyframes windowEnter {
@@ -142,5 +162,17 @@
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes windowExit {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-12px) translateX(-8px) scale(0.95);
     }
 }

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import styles from "./Skills.module.css";
 
-export default function Skills() {
-  return (
-    <div className={styles.skills}>
-      <h2>Expertise technique</h2>
+const sections = [
+  {
+    id: "langages",
+    title: "Langages et frameworks",
+    content: (
       <div className={styles.skillsGrid}>
         <div className={styles.skillCategory}>
           <h3>Langages de programmation</h3>
@@ -18,6 +20,20 @@ export default function Skills() {
             <li>SQL</li>
           </ul>
         </div>
+        <div className={styles.skillCategory}>
+          <h3>Frameworks & bibliothèques</h3>
+          <ul>
+            <li>Symfony</li>
+          </ul>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "environnements",
+    title: "Environnements et outils",
+    content: (
+      <div className={styles.skillsGrid}>
         <div className={styles.skillCategory}>
           <h3>Environnements système</h3>
           <ul>
@@ -38,6 +54,14 @@ export default function Skills() {
             <li>LibreOffice</li>
           </ul>
         </div>
+      </div>
+    ),
+  },
+  {
+    id: "methodes",
+    title: "Ingénierie et méthodologies",
+    content: (
+      <div className={styles.skillsGrid}>
         <div className={styles.skillCategory}>
           <h3>Ingénierie logicielle</h3>
           <ul>
@@ -59,12 +83,52 @@ export default function Skills() {
             <li>Comptabilité générale</li>
           </ul>
         </div>
-        <div className={styles.skillCategory}>
-          <h3>Frameworks & bibliothèques</h3>
-          <ul>
-            <li>Symfony</li>
-          </ul>
+      </div>
+    ),
+  },
+];
+
+export default function Skills() {
+  const [currentSection, setCurrentSection] = useState(0);
+
+  const goToPrevious = () => {
+    setCurrentSection((prev) => (prev > 0 ? prev - 1 : sections.length - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentSection((prev) => (prev < sections.length - 1 ? prev + 1 : 0));
+  };
+
+  return (
+    <div className={styles.skills}>
+      <section className={styles.section}>
+        <h3>{sections[currentSection].title}</h3>
+        {sections[currentSection].content}
+      </section>
+      
+      <div className={styles.navigation}>
+        <button 
+          className={styles.navButton}
+          onClick={goToPrevious}
+          aria-label="Section précédente"
+        >
+          &lt;
+        </button>
+        <div className={styles.dots}>
+          {sections.map((_, index) => (
+            <span
+              key={index}
+              className={`${styles.dot} ${index === currentSection ? styles.active : ""}`}
+            />
+          ))}
         </div>
+        <button 
+          className={styles.navButton}
+          onClick={goToNext}
+          aria-label="Section suivante"
+        >
+          &gt;
+        </button>
       </div>
     </div>
   );

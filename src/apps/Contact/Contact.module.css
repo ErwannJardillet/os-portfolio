@@ -1,6 +1,16 @@
 .contact {
   padding: 20px;
   color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.contact .section {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 0;
 }
 
 .contact h2 {
@@ -9,6 +19,15 @@
   font-size: 1.75rem;
   letter-spacing: -0.02em;
   margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.contact h3 {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
   color: var(--text-color);
 }
 
@@ -49,6 +68,64 @@
 .contactItem p {
   margin: 8px 0 0 0;
   line-height: 1.6;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px 0;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-color);
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  user-select: none;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.navButton:active {
+  transform: scale(0.95);
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.dot.active {
+  background: rgba(255, 255, 255, 0.723);
+  width: 10px;
+  height: 10px;
 }
 
 

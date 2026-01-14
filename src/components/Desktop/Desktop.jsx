@@ -69,7 +69,10 @@ export default function Desktop() {
 
   // Trouve la position la plus proche sans collision
   function findNearestFreePosition(targetPosition, allPositions, currentId) {
-    const GRID_SIZE = 100;
+    const GRID_SIZE_X = 100;
+    const GRID_SIZE_Y = 112;
+    const GRID_OFFSET_X = 24;
+    const GRID_OFFSET_Y = 24;
     const margin = 24;
     
     // Vérifier d'abord si la position cible est libre
@@ -91,11 +94,11 @@ export default function Desktop() {
     const maxY = desktopRect.height - ICON_HEIGHT - margin;
 
     // Chercher en spirale autour de la position cible
-    for (let radius = GRID_SIZE; radius <= maxRadius; radius += GRID_SIZE) {
+    for (let radius = GRID_SIZE_Y; radius <= maxRadius; radius += GRID_SIZE_Y) {
       for (let angle = 0; angle < 360; angle += 45) {
         const rad = (angle * Math.PI) / 180;
-        const testX = Math.round((targetPosition.x + Math.cos(rad) * radius) / GRID_SIZE) * GRID_SIZE;
-        const testY = Math.round((targetPosition.y + Math.sin(rad) * radius) / GRID_SIZE) * GRID_SIZE;
+        const testX = Math.round((targetPosition.x + Math.cos(rad) * radius - GRID_OFFSET_X) / GRID_SIZE_X) * GRID_SIZE_X + GRID_OFFSET_X;
+        const testY = Math.round((targetPosition.y + Math.sin(rad) * radius - GRID_OFFSET_Y) / GRID_SIZE_Y) * GRID_SIZE_Y + GRID_OFFSET_Y;
         
         const clampedX = Math.max(margin, Math.min(testX, maxX));
         const clampedY = Math.max(margin, Math.min(testY, maxY));
@@ -197,6 +200,7 @@ export default function Desktop() {
               initialTop: "120",
               initialLeft: "120",
               width: "520px",
+              height: "500px",
               component: "About",
             });
             setSelectedIcon(null);
@@ -218,6 +222,7 @@ export default function Desktop() {
               initialTop: "160",
               initialLeft: "160",
               width: "520px",
+              height: "680px",
               component: "Projects",
             });
             setSelectedIcon(null);
@@ -239,6 +244,7 @@ export default function Desktop() {
               initialTop: "200",
               initialLeft: "200",
               width: "520px",
+              height: "500px",
               component: "Contact",
             });
             setSelectedIcon(null);
@@ -260,6 +266,7 @@ export default function Desktop() {
               initialTop: "240",
               initialLeft: "240",
               width: "520px",
+              height: "500px",
               component: "Skills",
             });
             setSelectedIcon(null);
@@ -280,6 +287,7 @@ export default function Desktop() {
             initialTop={win.initialTop}
             initialLeft={win.initialLeft}
             width={win.width}
+            height={win.height}
             onClose={handleClose}
             onFocus={handleFocus}
             zIndex={win.zIndex}
