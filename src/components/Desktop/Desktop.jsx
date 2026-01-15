@@ -42,36 +42,59 @@ export default function Desktop() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Calculer les tailles adaptatives des fenêtres
-  const getAdaptiveWindowSize = useMemo(() => {
-    return {
-      width: Math.min(520, Math.max(420, windowSize.width * 0.4)),
-      height: Math.min(680, Math.max(400, windowSize.height * 0.6)),
-      heightSmall: Math.min(500, Math.max(400, windowSize.height * 0.5)),
-    };
-  }, [windowSize.width, windowSize.height]);
+  // Tailles relatives des fenêtres en pourcentages
+  const windowSizes = {
+    width: "40%",      // 40% de la largeur de l'écran
+    height: "60%",     // 60% de la hauteur de l'écran (pour les grandes fenêtres)
+    heightSmall: "50%", // 50% de la hauteur de l'écran (pour les petites fenêtres)
+  };
 
-  // Calculer la grille adaptative
+  // Calculer la grille adaptative - plus la fenêtre est petite, plus l'espacement est réduit
   const gridConfig = useMemo(() => {
-    // Base la grille sur un pourcentage de l'écran
-    const baseGridX = Math.max(80, Math.min(120, windowSize.width * 0.08));
-    // Augmenter l'espacement vertical : de 0.1 à 0.13 et augmenter les limites min/max
-    const baseGridY = Math.max(110, Math.min(160, windowSize.height * 0.13));
+    // Calculer l'espacement horizontal : réduit pour les petites fenêtres
+    // Pour les petites fenêtres (< 1200px) : 5-6% de la largeur
+    // Pour les grandes fenêtres (> 1920px) : 8-9% de la largeur
+    const widthRatio = windowSize.width < 1200 
+      ? 0.05 + (windowSize.width / 1200) * 0.01  // 5% à 6%
+      : 0.06 + Math.min((windowSize.width - 1200) / 720, 1) * 0.03; // 6% à 9%
+    const baseGridX = windowSize.width * widthRatio;
+    
+    // Calculer l'espacement vertical : réduit pour les petites fenêtres
+    // Pour les petites fenêtres (< 800px) : 8-10% de la hauteur
+    // Pour les grandes fenêtres (> 1080px) : 12-14% de la hauteur
+    const heightRatio = windowSize.height < 800
+      ? 0.08 + (windowSize.height / 800) * 0.02  // 8% à 10%
+      : 0.10 + Math.min((windowSize.height - 800) / 280, 1) * 0.04; // 10% à 14%
+    const baseGridY = windowSize.height * heightRatio;
+    
+    // Appliquer des limites min/max pour éviter des valeurs trop extrêmes
+    const minGridX = Math.max(50, windowSize.width * 0.04); // Minimum 4% ou 50px
+    const maxGridX = Math.min(140, windowSize.width * 0.1);   // Maximum 10% ou 140px
+    const minGridY = Math.max(70, windowSize.height * 0.07); // Minimum 7% ou 70px
+    const maxGridY = Math.min(180, windowSize.height * 0.15); // Maximum 15% ou 180px
+    
     return {
-      GRID_SIZE_X: Math.round(baseGridX / 10) * 10, // Arrondir à la dizaine
-      GRID_SIZE_Y: Math.round(baseGridY / 10) * 10,
-      GRID_OFFSET_X: Math.max(16, Math.min(32, windowSize.width * 0.015)),
-      GRID_OFFSET_Y: Math.max(16, Math.min(32, windowSize.height * 0.015)),
+      GRID_SIZE_X: Math.round(Math.max(minGridX, Math.min(maxGridX, baseGridX)) / 5) * 5, // Arrondir à 5px
+      GRID_SIZE_Y: Math.round(Math.max(minGridY, Math.min(maxGridY, baseGridY)) / 5) * 5,
+      GRID_OFFSET_X: Math.max(12, Math.min(32, windowSize.width * 0.012)), // Réduire aussi les offsets
+      GRID_OFFSET_Y: Math.max(12, Math.min(32, windowSize.height * 0.012)),
     };
   }, [windowSize.width, windowSize.height]);
   
-  // Calculer les positions initiales des icônes
+  // Calculer les positions initiales des icônes (utilise les mêmes calculs que gridConfig)
   const getInitialIconPositions = () => {
-    const offsetX = Math.max(16, Math.min(32, window.innerWidth * 0.015));
-    const offsetY = Math.max(16, Math.min(32, window.innerHeight * 0.015));
+    const offsetX = Math.max(12, Math.min(32, window.innerWidth * 0.012));
+    const offsetY = Math.max(12, Math.min(32, window.innerHeight * 0.012));
+    
     // Utiliser le même calcul que gridConfig pour la cohérence
-    const baseGridY = Math.max(110, Math.min(160, window.innerHeight * 0.13));
-    const gridY = Math.round(baseGridY / 10) * 10;
+    const heightRatio = window.innerHeight < 800
+      ? 0.08 + (window.innerHeight / 800) * 0.02
+      : 0.10 + Math.min((window.innerHeight - 800) / 280, 1) * 0.04;
+    const baseGridY = window.innerHeight * heightRatio;
+    const minGridY = Math.max(70, window.innerHeight * 0.07);
+    const maxGridY = Math.min(180, window.innerHeight * 0.15);
+    const gridY = Math.round(Math.max(minGridY, Math.min(maxGridY, baseGridY)) / 5) * 5;
+    
     return {
       about: { x: offsetX, y: offsetY },
       projects: { x: offsetX, y: offsetY + gridY },
@@ -112,9 +135,23 @@ export default function Desktop() {
     });
   }, [gridConfig.GRID_SIZE_X, gridConfig.GRID_SIZE_Y, gridConfig.GRID_OFFSET_X, gridConfig.GRID_OFFSET_Y]);
 
-  // Constantes pour la détection de collision
-  const ICON_WIDTH = 80;
-  const ICON_HEIGHT = 100;
+  // Constantes adaptatives pour la détection de collision
+  const ICON_WIDTH = useMemo(() => {
+    // Correspond à clamp(60px, 6vw, 80px) du CSS
+    const minWidth = 60;
+    const maxWidth = 80;
+    const vwWidth = windowSize.width * 0.06;
+    return Math.max(minWidth, Math.min(maxWidth, vwWidth));
+  }, [windowSize.width]);
+  
+  const ICON_HEIGHT = useMemo(() => {
+    // Hauteur approximative : largeur + espace pour le label
+    // Correspond à environ clamp(75px, 7.5vw, 100px)
+    const minHeight = 75;
+    const maxHeight = 100;
+    const vwHeight = windowSize.height * 0.075;
+    return Math.max(minHeight, Math.min(maxHeight, vwHeight));
+  }, [windowSize.height]);
 
   // Vérifie si deux positions se chevauchent réellement
   // Permet le placement vertical (au-dessus/en dessous) tant qu'il n'y a pas de chevauchement vertical
@@ -278,10 +315,10 @@ export default function Desktop() {
             openWindow({
               id: "about",
               title: "À propos",
-              initialTop: `${windowSize.height * 0.1}px`,
-              initialLeft: `${windowSize.width * 0.1}px`,
-              width: `${getAdaptiveWindowSize.width}px`,
-              height: `${getAdaptiveWindowSize.heightSmall}px`,
+              initialTop: "10%",
+              initialLeft: "10%",
+              width: windowSizes.width,
+              height: windowSizes.heightSmall,
               component: "About",
             });
             setSelectedIcon(null);
@@ -301,10 +338,10 @@ export default function Desktop() {
             openWindow({
               id: "projects",
               title: "Projets",
-              initialTop: `${windowSize.height * 0.12}px`,
-              initialLeft: `${windowSize.width * 0.12}px`,
-              width: `${getAdaptiveWindowSize.width}px`,
-              height: `${getAdaptiveWindowSize.height}px`,
+              initialTop: "12%",
+              initialLeft: "12%",
+              width: windowSizes.width,
+              height: windowSizes.height,
               component: "Projects",
             });
             setSelectedIcon(null);
@@ -324,10 +361,10 @@ export default function Desktop() {
             openWindow({
               id: "contact",
               title: "Contact",
-              initialTop: `${windowSize.height * 0.14}px`,
-              initialLeft: `${windowSize.width * 0.14}px`,
-              width: `${getAdaptiveWindowSize.width}px`,
-              height: `${getAdaptiveWindowSize.heightSmall}px`,
+              initialTop: "14%",
+              initialLeft: "14%",
+              width: windowSizes.width,
+              height: windowSizes.heightSmall,
               component: "Contact",
             });
             setSelectedIcon(null);
@@ -347,10 +384,10 @@ export default function Desktop() {
             openWindow({
               id: "skills",
               title: "Compétences",
-              initialTop: `${windowSize.height * 0.16}px`,
-              initialLeft: `${windowSize.width * 0.16}px`,
-              width: `${getAdaptiveWindowSize.width}px`,
-              height: `${getAdaptiveWindowSize.heightSmall}px`,
+              initialTop: "16%",
+              initialLeft: "16%",
+              width: windowSizes.width,
+              height: windowSizes.heightSmall,
               component: "Skills",
             });
             setSelectedIcon(null);

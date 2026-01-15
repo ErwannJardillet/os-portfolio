@@ -65,8 +65,17 @@ export default function DesktopIcon({
       const newY = e.clientY - desktopRect.top - dragOffsetRef.current.y;
 
       // Limiter aux limites du bureau (avec marges)
-      const iconWidth = 80;
-      const iconHeight = 100; // Approximation
+      // Calculer les tailles adaptatives (correspondent au CSS)
+      const minWidth = 60;
+      const maxWidth = 80;
+      const vwWidth = desktopRect.width * 0.06;
+      const iconWidth = Math.max(minWidth, Math.min(maxWidth, vwWidth));
+      
+      const minHeight = 75;
+      const maxHeight = 100;
+      const vwHeight = desktopRect.height * 0.075;
+      const iconHeight = Math.max(minHeight, Math.min(maxHeight, vwHeight));
+      
       const margin = GRID_OFFSET_X; // Utiliser le même offset que la grille
       const maxX = desktopRect.width - iconWidth - margin;
       const maxY = desktopRect.height - iconHeight - margin;
@@ -92,8 +101,17 @@ export default function DesktopIcon({
       const finalY = e.clientY - desktopRect.top - dragOffsetRef.current.y;
 
       // Limiter aux limites du bureau (avec marges)
-      const iconWidth = 80;
-      const iconHeight = 100;
+      // Calculer les tailles adaptatives (correspondent au CSS)
+      const minWidth = 60;
+      const maxWidth = 80;
+      const vwWidth = desktopRect.width * 0.06;
+      const iconWidth = Math.max(minWidth, Math.min(maxWidth, vwWidth));
+      
+      const minHeight = 75;
+      const maxHeight = 100;
+      const vwHeight = desktopRect.height * 0.075;
+      const iconHeight = Math.max(minHeight, Math.min(maxHeight, vwHeight));
+      
       const margin = GRID_OFFSET_X; // Utiliser le même offset que la grille
       const maxX = desktopRect.width - iconWidth - margin;
       const maxY = desktopRect.height - iconHeight - margin;
