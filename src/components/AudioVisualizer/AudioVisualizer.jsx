@@ -49,14 +49,14 @@ export default function AudioVisualizer() {
         let count = 0;
         for (let j = startIdx; j < endIdx; j++) {
           // Pondérer davantage les premières fréquences (basses plus profondes)
-          const weight = 1 + (1 - j / bassRange) * 0.5; // Plus de poids pour les basses
+          const weight = 1 + (1 - j / bassRange) * 0.01; // Plus de poids pour les basses
           sum += frequencyDataArray[j] * weight;
           count += weight;
         }
         
         const avg = count > 0 ? sum / count : 0;
         // Normaliser entre 0 et 100% avec forte amplification pour les basses
-        const normalized = Math.min(100, (avg / 255) * 100 * 2.2); // Amplification 2.2x pour plus de réactivité
+        const normalized = Math.min(100, (avg / 255) * 100 * 0.5); // Amplification 2.2x pour plus de réactivité
         newHeights.push(normalized);
       }
 

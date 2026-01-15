@@ -33,7 +33,7 @@ export function AudioProvider({ children }) {
         // Créer l'analyser avec une meilleure réactivité
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 2048; // Plus de détails pour une meilleure visualisation
-        analyser.smoothingTimeConstant = 0.2; // Plus réactif (0.3 au lieu de 0.8)
+        analyser.smoothingTimeConstant = 0.05; // Plus réactif (0.3 au lieu de 0.8)
         analyserRef.current = analyser;
 
         // Créer le gain node pour le volume
