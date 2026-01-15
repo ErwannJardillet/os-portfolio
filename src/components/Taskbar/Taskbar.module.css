@@ -42,7 +42,11 @@
 
 .centerArea {
   flex: 1;
-  justify-content: center;
+  justify-content: flex-start;
+  min-height: 30px;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0; /* Permet au conteneur de se rétrécir si nécessaire */
 }
 
 .rightArea {

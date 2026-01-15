@@ -1,0 +1,19 @@
+.visualizerContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 20px;
+  width: 32px;
+  margin-right: 4px;
+}
+
+.bar {
+  width: 4px;
+  min-height: 2px;
+  max-height: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  transition: height 0.03s linear;
+  will-change: height;
+}

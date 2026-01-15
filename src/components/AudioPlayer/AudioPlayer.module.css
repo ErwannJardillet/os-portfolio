@@ -1,0 +1,4 @@
+/* AudioPlayer est un composant invisible qui gère la lecture */
+.audioPlayer {
+  display: none;
+}

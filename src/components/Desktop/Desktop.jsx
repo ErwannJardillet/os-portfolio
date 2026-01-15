@@ -8,6 +8,7 @@ import Contact from "../../apps/Contact/Contact";
 import Projects from "../../apps/Projects/Projects";
 import Skills from "../../apps/Skills/Skills";
 import WallpaperShaderGradient from "../Wallpaper/WallpaperShaderGradient.jsx";
+import AudioPlayer from "../AudioPlayer/AudioPlayer";
 
 // Mapping des composants pour éviter les if/else
 const componentMap = {
@@ -419,6 +420,7 @@ export default function Desktop() {
       })}
 
       <Taskbar />
+      <AudioPlayer />
     </div>
   );
 }

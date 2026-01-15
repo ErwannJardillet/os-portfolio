@@ -1,6 +1,8 @@
 // Taskbar.jsx
 import styles from "./Taskbar.module.css";
 import { useEffect, useState } from "react";
+import AudioVisualizer from "../AudioVisualizer/AudioVisualizer";
+import VolumeControl from "../VolumeControl/VolumeControl";
 
 
 export default function Taskbar() {
@@ -23,10 +25,14 @@ export default function Taskbar() {
       </div>
 
       {/* Zone centrale (vide pour l’instant) */}
-      <div className={styles.centerArea}>{/* plus tard : notifs, musique... */}</div>
+      <div className={styles.centerArea}>
+      </div>
 
       {/* Zone droite : infos système */}
       <div className={styles.rightArea}>
+        <AudioVisualizer />
+        <VolumeControl />
+        <div className={styles.divider}></div>
         <div className={styles.systemItem}>{date}</div>
         <div className={styles.divider}></div>
         <div className={styles.systemItem}>{time}</div>
