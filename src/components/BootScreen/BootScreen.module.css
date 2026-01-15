@@ -1,0 +1,115 @@
+.bootScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  color: #5606ff;
+  transition: opacity 0.3s ease-out;
+}
+
+.bootScreen.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bootContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  max-width: 600px;
+  width: 90%;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  min-height: 120px;
+}
+
+.message {
+  animation: fadeIn 0.3s ease-in;
+  color: #5606ff;
+  text-shadow: 0 0 10px rgba(86, 6, 255, 0.5);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  color: #5606ff;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #5606ff, #fe8989);
+  box-shadow: 0 0 10px rgba(86, 6, 255, 0.6);
+  transition: width 0.1s linear;
+  border-radius: 2px;
+}
+
+.progressText {
+  font-size: 0.9rem;
+  color: #5606ff;
+  text-shadow: 0 0 5px rgba(86, 6, 255, 0.5);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .messages {
+    font-size: 0.9rem;
+  }
+  
+  .progressText {
+    font-size: 0.8rem;
+  }
+}
