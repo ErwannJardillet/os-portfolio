@@ -1,7 +1,7 @@
 import styles from "./Desktop.module.css";
 import Window from "../Window/Window";
 import Taskbar from "../Taskbar/Taskbar";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DesktopIcon from "../DesktopIcon/DesktopIcon";
 import About from "../../apps/About/About";
 import Contact from "../../apps/Contact/Contact";
@@ -24,13 +24,93 @@ export default function Desktop() {
   const [windows, setWindows] = useState([]);
   const [selectedIcon, setSelectedIcon] = useState(null);
   
-  // Positions des icônes sur le bureau
-  const [iconPositions, setIconPositions] = useState({
-    about: { x: 24, y: 24 },
-    projects: { x: 24, y: 136 },
-    contact: { x: 24, y: 248 },
-    skills: { x: 24, y: 360 }
+  // État pour la taille de l'écran
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Calculer les tailles adaptatives des fenêtres
+  const getAdaptiveWindowSize = useMemo(() => {
+    return {
+      width: Math.min(520, Math.max(420, windowSize.width * 0.4)),
+      height: Math.min(680, Math.max(400, windowSize.height * 0.6)),
+      heightSmall: Math.min(500, Math.max(400, windowSize.height * 0.5)),
+    };
+  }, [windowSize.width, windowSize.height]);
+
+  // Calculer la grille adaptative
+  const gridConfig = useMemo(() => {
+    // Base la grille sur un pourcentage de l'écran
+    const baseGridX = Math.max(80, Math.min(120, windowSize.width * 0.08));
+    // Augmenter l'espacement vertical : de 0.1 à 0.13 et augmenter les limites min/max
+    const baseGridY = Math.max(110, Math.min(160, windowSize.height * 0.13));
+    return {
+      GRID_SIZE_X: Math.round(baseGridX / 10) * 10, // Arrondir à la dizaine
+      GRID_SIZE_Y: Math.round(baseGridY / 10) * 10,
+      GRID_OFFSET_X: Math.max(16, Math.min(32, windowSize.width * 0.015)),
+      GRID_OFFSET_Y: Math.max(16, Math.min(32, windowSize.height * 0.015)),
+    };
+  }, [windowSize.width, windowSize.height]);
+  
+  // Calculer les positions initiales des icônes
+  const getInitialIconPositions = () => {
+    const offsetX = Math.max(16, Math.min(32, window.innerWidth * 0.015));
+    const offsetY = Math.max(16, Math.min(32, window.innerHeight * 0.015));
+    // Utiliser le même calcul que gridConfig pour la cohérence
+    const baseGridY = Math.max(110, Math.min(160, window.innerHeight * 0.13));
+    const gridY = Math.round(baseGridY / 10) * 10;
+    return {
+      about: { x: offsetX, y: offsetY },
+      projects: { x: offsetX, y: offsetY + gridY },
+      contact: { x: offsetX, y: offsetY + gridY * 2 },
+      skills: { x: offsetX, y: offsetY + gridY * 3 }
+    };
+  };
+
+  // Positions des icônes sur le bureau (adaptatives)
+  const [iconPositions, setIconPositions] = useState(getInitialIconPositions);
+
+  // Mettre à jour les positions des icônes quand la grille change
+  useEffect(() => {
+    setIconPositions(prev => {
+      const offsetY = gridConfig.GRID_OFFSET_Y;
+      const gridY = gridConfig.GRID_SIZE_Y;
+      const offsetX = gridConfig.GRID_OFFSET_X;
+      
+      // Préserver les positions relatives si possible
+      return {
+        about: { 
+          x: Math.round((prev.about.x - gridConfig.GRID_OFFSET_X) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+          y: Math.round((prev.about.y - offsetY) / gridY) * gridY + offsetY
+        },
+        projects: { 
+          x: Math.round((prev.projects.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+          y: Math.round((prev.projects.y - offsetY) / gridY) * gridY + offsetY
+        },
+        contact: { 
+          x: Math.round((prev.contact.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+          y: Math.round((prev.contact.y - offsetY) / gridY) * gridY + offsetY
+        },
+        skills: { 
+          x: Math.round((prev.skills.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+          y: Math.round((prev.skills.y - offsetY) / gridY) * gridY + offsetY
+        }
+      };
+    });
+  }, [gridConfig.GRID_SIZE_X, gridConfig.GRID_SIZE_Y, gridConfig.GRID_OFFSET_X, gridConfig.GRID_OFFSET_Y]);
 
   // Constantes pour la détection de collision
   const ICON_WIDTH = 80;
@@ -69,11 +149,11 @@ export default function Desktop() {
 
   // Trouve la position la plus proche sans collision
   function findNearestFreePosition(targetPosition, allPositions, currentId) {
-    const GRID_SIZE_X = 100;
-    const GRID_SIZE_Y = 112;
-    const GRID_OFFSET_X = 24;
-    const GRID_OFFSET_Y = 24;
-    const margin = 24;
+    const GRID_SIZE_X = gridConfig.GRID_SIZE_X;
+    const GRID_SIZE_Y = gridConfig.GRID_SIZE_Y;
+    const GRID_OFFSET_X = gridConfig.GRID_OFFSET_X;
+    const GRID_OFFSET_Y = gridConfig.GRID_OFFSET_Y;
+    const margin = Math.max(16, Math.min(32, windowSize.width * 0.015));
     
     // Vérifier d'abord si la position cible est libre
     const hasCollision = Object.entries(allPositions).some(
@@ -193,14 +273,15 @@ export default function Desktop() {
           isSelected={selectedIcon === "about"}
           onSelect={() => setSelectedIcon("about")}
           onPositionChange={(newPosition) => handleIconPositionChange("about", newPosition)}
+          gridConfig={gridConfig}
           onOpen={() => {
             openWindow({
               id: "about",
               title: "À propos",
-              initialTop: "120",
-              initialLeft: "120",
-              width: "520px",
-              height: "500px",
+              initialTop: `${windowSize.height * 0.1}px`,
+              initialLeft: `${windowSize.width * 0.1}px`,
+              width: `${getAdaptiveWindowSize.width}px`,
+              height: `${getAdaptiveWindowSize.heightSmall}px`,
               component: "About",
             });
             setSelectedIcon(null);
@@ -215,14 +296,15 @@ export default function Desktop() {
           isSelected={selectedIcon === "projects"}
           onSelect={() => setSelectedIcon("projects")}
           onPositionChange={(newPosition) => handleIconPositionChange("projects", newPosition)}
+          gridConfig={gridConfig}
           onOpen={() => {
             openWindow({
               id: "projects",
               title: "Projets",
-              initialTop: "160",
-              initialLeft: "160",
-              width: "520px",
-              height: "680px",
+              initialTop: `${windowSize.height * 0.12}px`,
+              initialLeft: `${windowSize.width * 0.12}px`,
+              width: `${getAdaptiveWindowSize.width}px`,
+              height: `${getAdaptiveWindowSize.height}px`,
               component: "Projects",
             });
             setSelectedIcon(null);
@@ -237,14 +319,15 @@ export default function Desktop() {
           isSelected={selectedIcon === "contact"}
           onSelect={() => setSelectedIcon("contact")}
           onPositionChange={(newPosition) => handleIconPositionChange("contact", newPosition)}
+          gridConfig={gridConfig}
           onOpen={() => {
             openWindow({
               id: "contact",
               title: "Contact",
-              initialTop: "200",
-              initialLeft: "200",
-              width: "520px",
-              height: "500px",
+              initialTop: `${windowSize.height * 0.14}px`,
+              initialLeft: `${windowSize.width * 0.14}px`,
+              width: `${getAdaptiveWindowSize.width}px`,
+              height: `${getAdaptiveWindowSize.heightSmall}px`,
               component: "Contact",
             });
             setSelectedIcon(null);
@@ -259,14 +342,15 @@ export default function Desktop() {
           isSelected={selectedIcon === "skills"}
           onSelect={() => setSelectedIcon("skills")}
           onPositionChange={(newPosition) => handleIconPositionChange("skills", newPosition)}
+          gridConfig={gridConfig}
           onOpen={() => {
             openWindow({
               id: "skills",
               title: "Compétences",
-              initialTop: "240",
-              initialLeft: "240",
-              width: "520px",
-              height: "500px",
+              initialTop: `${windowSize.height * 0.16}px`,
+              initialLeft: `${windowSize.width * 0.16}px`,
+              width: `${getAdaptiveWindowSize.width}px`,
+              height: `${getAdaptiveWindowSize.heightSmall}px`,
               component: "Skills",
             });
             setSelectedIcon(null);

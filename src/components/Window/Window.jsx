@@ -1,5 +1,5 @@
 // Window.jsx
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import styles from "./Window.module.css";
 
 export default function Window({
@@ -14,21 +14,67 @@ export default function Window({
   onFocus,
   zIndex,
 }) {
+  // État pour la taille de l'écran
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Fonction pour convertir initialTop/initialLeft en pixels
   const parsePosition = (value, isTop = false) => {
     if (typeof value === 'string' && value.includes('%')) {
       const percent = parseFloat(value);
-      const dimension = isTop ? window.innerHeight : window.innerWidth;
+      const dimension = isTop ? windowSize.height : windowSize.width;
       return (dimension * percent) / 100;
     }
     return parseInt(value, 10) || 100;
   };
 
+  // Fonction pour parser la largeur/hauteur (supporte px, %, et calculs)
+  const parseSize = (value, isHeight = false) => {
+    if (!value) return null;
+    if (typeof value === 'string') {
+      if (value.includes('%')) {
+        const percent = parseFloat(value);
+        const dimension = isHeight ? windowSize.height : windowSize.width;
+        return `${(dimension * percent) / 100}px`;
+      }
+      // Si c'est déjà en px ou autre unité, le retourner tel quel
+      return value;
+    }
+    // Si c'est un nombre, le traiter comme un pourcentage
+    if (typeof value === 'number') {
+      const dimension = isHeight ? windowSize.height : windowSize.width;
+      return `${(dimension * value) / 100}px`;
+    }
+    return value;
+  };
+
   // Position locale de la fenêtre
-  const [position, setPosition] = useState({
+  const [position, setPosition] = useState(() => ({
     top: parsePosition(initialTop, true),
     left: parsePosition(initialLeft, false),
-  });
+  }));
+
+  // Recalculer la position quand la taille de l'écran change
+  useEffect(() => {
+    setPosition({
+      top: parsePosition(initialTop, true),
+      left: parsePosition(initialLeft, false),
+    });
+  }, [windowSize.width, windowSize.height]);
 
   // État pour gérer l'animation de fermeture
   const [isClosing, setIsClosing] = useState(false);
@@ -45,9 +91,9 @@ export default function Window({
   const maxHeight = useMemo(() => {
     if (height) return null; // Si height est spécifiée, pas de limitation
     
-    const availableHeight = window.innerHeight - position.top - TASKBAR_HEIGHT - MARGIN;
+    const availableHeight = windowSize.height - position.top - TASKBAR_HEIGHT - MARGIN;
     return Math.max(200, availableHeight); // Minimum de 200px pour la hauteur
-  }, [position.top, height]);
+  }, [position.top, height, windowSize.height]);
 
 function onDrag(e) {
   let newTop = e.clientY - dragOffset.current.y;
@@ -55,14 +101,14 @@ function onDrag(e) {
 
   const minTop = MARGIN;
   const maxTop =
-    window.innerHeight - TASKBAR_HEIGHT - TITLEBAR_HEIGHT - MARGIN;
+    windowSize.height - TASKBAR_HEIGHT - TITLEBAR_HEIGHT - MARGIN;
 
   // On empêche la titleBar de passer sous la taskbar
   newTop = Math.min(Math.max(newTop, minTop), maxTop);
 
   // Optionnel : empêcher de sortir trop à gauche / droite
   const minLeft = MARGIN;
-  const maxLeft = window.innerWidth - MARGIN - 200; // 200 = largeur minimale approximative
+  const maxLeft = windowSize.width - MARGIN - 200; // 200 = largeur minimale approximative
   newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
 
   setPosition({
@@ -106,10 +152,12 @@ function onDrag(e) {
     zIndex,
   };
 
-  if (width) style.width = width;
+  if (width) {
+    style.width = parseSize(width, false);
+  }
   // Si height est spécifié, l'utiliser, sinon adapter automatiquement au contenu
   if (height) {
-    style.height = height;
+    style.height = parseSize(height, true);
   } else {
     // Hauteur maximale calculée dynamiquement selon la position pour éviter de dépasser en bas
     style.maxHeight = `${maxHeight}px`;

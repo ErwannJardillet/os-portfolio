@@ -1,12 +1,28 @@
 import styles from "./DesktopIcon.module.css";
 import { useState, useEffect, useRef } from "react";
 
-const GRID_SIZE_X = 100; // Taille de la grille horizontale pour le snap
-const GRID_SIZE_Y = 112; // Taille de la grille verticale pour le snap (correspond à l'espacement initial)
-const GRID_OFFSET_X = 24; // Décalage horizontal de la grille pour correspondre aux positions initiales
-const GRID_OFFSET_Y = 24; // Décalage vertical de la grille pour correspondre aux positions initiales
+// Valeurs par défaut pour la grille (utilisées si gridConfig n'est pas fourni)
+const DEFAULT_GRID_SIZE_X = 100;
+const DEFAULT_GRID_SIZE_Y = 112;
+const DEFAULT_GRID_OFFSET_X = 24;
+const DEFAULT_GRID_OFFSET_Y = 24;
 
-export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, position, onPositionChange, iconImage }) {
+export default function DesktopIcon({ 
+  id, 
+  label, 
+  isSelected, 
+  onSelect, 
+  onOpen, 
+  position, 
+  onPositionChange, 
+  iconImage,
+  gridConfig 
+}) {
+  // Utiliser gridConfig si fourni, sinon les valeurs par défaut
+  const GRID_SIZE_X = gridConfig?.GRID_SIZE_X || DEFAULT_GRID_SIZE_X;
+  const GRID_SIZE_Y = gridConfig?.GRID_SIZE_Y || DEFAULT_GRID_SIZE_Y;
+  const GRID_OFFSET_X = gridConfig?.GRID_OFFSET_X || DEFAULT_GRID_OFFSET_X;
+  const GRID_OFFSET_Y = gridConfig?.GRID_OFFSET_Y || DEFAULT_GRID_OFFSET_Y;
   const [isDragging, setIsDragging] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(position);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
@@ -51,7 +67,7 @@ export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, p
       // Limiter aux limites du bureau (avec marges)
       const iconWidth = 80;
       const iconHeight = 100; // Approximation
-      const margin = 24;
+      const margin = GRID_OFFSET_X; // Utiliser le même offset que la grille
       const maxX = desktopRect.width - iconWidth - margin;
       const maxY = desktopRect.height - iconHeight - margin;
 
@@ -78,7 +94,7 @@ export default function DesktopIcon({ id, label, isSelected, onSelect, onOpen, p
       // Limiter aux limites du bureau (avec marges)
       const iconWidth = 80;
       const iconHeight = 100;
-      const margin = 24;
+      const margin = GRID_OFFSET_X; // Utiliser le même offset que la grille
       const maxX = desktopRect.width - iconWidth - margin;
       const maxY = desktopRect.height - iconHeight - margin;
 
