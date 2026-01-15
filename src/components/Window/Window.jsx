@@ -49,7 +49,7 @@ export default function Window({
       if (value.includes('%')) {
         const percent = parseFloat(value);
         const dimension = isHeight ? windowSize.height : windowSize.width;
-        return `${(dimension * percent) / 100}px`;
+        return `${(dimension * percent) / 75}px`;
       }
       // Si c'est déjà en px ou autre unité, le retourner tel quel
       return value;
