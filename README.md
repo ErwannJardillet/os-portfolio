@@ -4,6 +4,8 @@
 
 Un portfolio interactif présenté comme un système d'exploitation fictif. Explorez mes projets, compétences et informations de contact à travers une interface immersive simulant un environnement de bureau moderne.
 
+🌐 **Site en ligne** : [https://os-portfolio-steel.vercel.app/](https://os-portfolio-steel.vercel.app/)
+
 ## 🎨 Caractéristiques
 
 - **Interface OS-like** : Expérience utilisateur similaire à un système d'exploitation avec bureau, icônes et fenêtres
