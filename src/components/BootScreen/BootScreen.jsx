@@ -33,7 +33,7 @@ export default function BootScreen({ onBootComplete }) {
           clearInterval(progressInterval);
           return 100;
         }
-        return prev + 2; // Incrément de 2% pour atteindre 100% en ~2.5s
+        return prev + 0.6; // Incrément de 2% pour atteindre 100% en ~2.5s
       });
     }, BOOT_DURATION / 200); // 200 étapes sur la durée totale
 
