@@ -80,7 +80,7 @@
   font-variation-settings:
     "ROND" 50;
 
-  font-family: 'Doto', sans-serif;
+
   font-size: clamp(0.8rem, 1.2vw, 0.9rem);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
@@ -91,21 +91,19 @@
 }
 
 /* Styles pour les titres dans le contenu */
-.content h2 {
-  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
-  font-weight: 700;
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
+.content h3 {
+  
+  font-family: "Doto", sans-serif;font-family: "Doto", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 900;
+  font-variation-settings:
+    "ROND" 100;
+
   letter-spacing: -0.02em;
   margin-bottom: clamp(0.5rem, 1vw, 1rem);
 }
 
-.content h3 {
-  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
-  font-weight: 600;
-  font-size: clamp(1rem, 2.5vw, 1.35rem);
-  letter-spacing: -0.01em;
-  margin-bottom: clamp(0.375rem, 0.8vw, 0.75rem);
-}
 
 /* Scrollbar personnalisée pour le contenu - style sobre et discret */
 .content {
