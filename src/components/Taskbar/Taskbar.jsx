@@ -33,9 +33,9 @@ export default function Taskbar() {
         <AudioVisualizer />
         <VolumeControl />
         <div className={styles.divider}></div>
-        <div className={styles.systemItem}>{date}</div>
+        <div className={`${styles.systemItem} ${styles.dateItem}`}>{date}</div>
         <div className={styles.divider}></div>
-        <div className={styles.systemItem}>{time}</div>
+        <div className={`${styles.systemItem} ${styles.timeItem}`}>{time}</div>
 
         <div className={styles.systemItem}>
           <div className={styles.battery}>

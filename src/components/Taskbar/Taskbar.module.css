@@ -24,6 +24,7 @@
 
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.8rem;
+  font-family: "Doto", sans-serif;
 
   z-index: 100;
 }
@@ -76,6 +77,15 @@
 
 .systemItem:nth-child(1) {
   white-space: nowrap;
+}
+
+.dateItem {
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+
+.timeItem {
+  font-weight: 700;
 }
 
 /* Batterie */
