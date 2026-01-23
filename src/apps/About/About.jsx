@@ -8,15 +8,24 @@ const sections = [
     content: (
       <>
         <p>
-          Étudiant en Licence Professionnelle Métiers de l'Informatique — Applications Web 
-          à l'Université de Limoges, je me spécialise dans le développement web et les 
-          technologies numériques. Ma passion pour l'informatique se traduit par une approche 
-          rigoureuse et une volonté constante d'approfondir mes connaissances techniques.
+          Je suis étudiant en licence pro MI AW, et passionné par
+          le développement et le design web. J’aime concevoir des interfaces,
+          comprendre comment les choses fonctionnent et transformer des idées en
+          projets concrets.
         </p>
         <p>
-          Mon parcours académique, allant du Baccalauréat mention bien jusqu'à la Licence Pro, 
-          m'a permis d'acquérir une solide base théorique et pratique dans le domaine du 
-          développement logiciel et web.
+          En parallèle de mes études, je me forme en autodidacte à travers
+          plusieurs projets personnels. Ces projets me permettent
+          d’expérimenter, de tester de nouvelles choses et de progresser pas à
+          pas. Je fais encore des erreurs, je n’ai pas toujours les meilleures
+          pratiques ni des connaissances parfaites, mais chaque difficulté est
+          pour moi une occasion d’apprendre.
+        </p>
+        <p>
+          Motivé et curieux, je cherche constamment à m’améliorer et à donner le
+          meilleur de moi-même dans chaque projet. Mon objectif est de continuer
+          à évoluer, aussi bien techniquement que créativement, et de construire
+          des expériences web à la fois utiles et bien pensées.
         </p>
       </>
     ),
@@ -27,23 +36,31 @@ const sections = [
     content: (
       <ul>
         <li>
-          <strong>2025 — 2026</strong><br />
-          Licence Professionnelle MI AW — Développement Web<br />
+          <strong>2025 — 2026</strong>
+          <br />
+          Licence Professionnelle MI AW — Développement Web
+          <br />
           <em>Université de Limoges</em>
         </li>
         <li>
-          <strong>2024 — 2025</strong><br />
-          BUT 2 Informatique<br />
+          <strong>2024 — 2025</strong>
+          <br />
+          BUT 2 Informatique
+          <br />
           <em>IUT de Valence</em>
         </li>
         <li>
-          <strong>2023 — 2024</strong><br />
-          BUT 1 Informatique<br />
+          <strong>2023 — 2024</strong>
+          <br />
+          BUT 1 Informatique
+          <br />
           <em>IUT de Valence</em>
         </li>
         <li>
-          <strong>2023</strong><br />
-          Baccalauréat mention bien<br />
+          <strong>2023</strong>
+          <br />
+          Baccalauréat mention bien
+          <br />
           <em>Lycée Marie-Rivier, Bourg-Saint-Andéol (07)</em>
         </li>
       </ul>
@@ -55,11 +72,13 @@ const sections = [
     content: (
       <ul>
         <li>
-          <strong>Anglais</strong> — Niveau avancé (B2)<br />
+          <strong>Anglais</strong> — Niveau avancé (B2)
+          <br />
           <em>Communication professionnelle et technique</em>
         </li>
         <li>
-          <strong>Espagnol</strong> — Niveau intermédiaire (A2 — B1)<br />
+          <strong>Espagnol</strong> — Niveau intermédiaire (A2 — B1)
+          <br />
           <em>Communication courante</em>
         </li>
       </ul>
@@ -84,9 +103,9 @@ export default function About() {
         <h3>{sections[currentSection].title}</h3>
         {sections[currentSection].content}
       </section>
-      
+
       <div className={styles.navigation}>
-        <button 
+        <button
           className={styles.navButton}
           onClick={goToPrevious}
           aria-label="Section précédente"
@@ -97,11 +116,13 @@ export default function About() {
           {sections.map((_, index) => (
             <span
               key={index}
-              className={`${styles.dot} ${index === currentSection ? styles.active : ""}`}
+              className={`${styles.dot} ${
+                index === currentSection ? styles.active : ""
+              }`}
             />
           ))}
         </div>
-        <button 
+        <button
           className={styles.navButton}
           onClick={goToNext}
           aria-label="Section suivante"
@@ -112,6 +133,3 @@ export default function About() {
     </div>
   );
 }
-
-
-
