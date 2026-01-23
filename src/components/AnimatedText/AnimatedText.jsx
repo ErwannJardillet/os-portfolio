@@ -2,38 +2,54 @@ import { useState, useEffect, useMemo, useRef, Children, cloneElement, isValidEl
 import styles from "./AnimatedText.module.css";
 
 /**
- * Composant qui anime le texte lettre par lettre de manière aléatoire
+ * Composant qui anime le texte mot par mot de manière aléatoire
  * @param {React.ReactNode} children - Le contenu JSX à animer
  * @param {string} animationKey - Une clé pour forcer la réanimation lors du changement de contenu
  */
 export default function AnimatedText({ children, animationKey }) {
-  const [visibleLetters, setVisibleLetters] = useState(new Set());
+  const [visibleWords, setVisibleWords] = useState(new Set());
   const containerRef = useRef(null);
-  const letterKeysRef = useMemo(() => new Map(), []);
+  const wordKeysRef = useMemo(() => new Map(), []);
 
-  // Fonction récursive pour traiter les enfants et remplacer le texte par des lettres individuelles
+  // Fonction récursive pour traiter les enfants et remplacer le texte par des mots individuels
   const processChildren = (children, parentKey = "root") => {
     return Children.map(children, (child, index) => {
       const key = `${parentKey}-${index}`;
 
-      // Si c'est un nœud texte, le diviser en lettres
+      // Si c'est un nœud texte, le diviser en mots
       if (typeof child === "string" || typeof child === "number") {
         const text = String(child);
-        return text.split("").map((char, charIndex) => {
-          const letterKey = `${key}-char-${charIndex}`;
-          letterKeysRef.set(letterKey, true);
-          // Pour les espaces, utiliser un non-breaking space et un style spécial
-          const isSpace = char === " ";
+        // Diviser le texte en mots et espaces en préservant les espaces
+        const wordsAndSpaces = text.split(/(\s+)/);
+        
+        return wordsAndSpaces.map((segment, segmentIndex) => {
+          // Ignorer les segments vides
+          if (segment.length === 0) return null;
+          
+          const wordKey = `${key}-word-${segmentIndex}`;
+          const isSpace = /^\s+$/.test(segment);
+          
+          // Pour les espaces, les rendre directement visibles
+          if (isSpace) {
+            return (
+              <span key={wordKey} className={styles.space}>
+                {segment}
+              </span>
+            );
+          }
+          
+          // Pour les mots, les envelopper dans un span animable
+          wordKeysRef.set(wordKey, true);
           return (
             <span 
-              key={letterKey} 
-              className={`${styles.letter} ${isSpace ? styles.space : ""}`} 
-              data-letter-key={letterKey}
+              key={wordKey} 
+              className={styles.word} 
+              data-word-key={wordKey}
             >
-              {isSpace ? "\u00A0" : char}
+              {segment}
             </span>
           );
-        });
+        }).filter(Boolean);
       }
 
       // Si c'est un élément React valide, cloner et traiter ses enfants
@@ -58,30 +74,30 @@ export default function AnimatedText({ children, animationKey }) {
   };
 
   const processedContent = useMemo(() => {
-    letterKeysRef.clear();
+    wordKeysRef.clear();
     return processChildren(children);
   }, [children, animationKey]);
 
   // Réinitialiser l'animation quand le contenu change
   useEffect(() => {
-    setVisibleLetters(new Set());
+    setVisibleWords(new Set());
 
-    const letterKeys = Array.from(letterKeysRef.keys());
+    const wordKeys = Array.from(wordKeysRef.keys());
     
-    if (letterKeys.length === 0) return;
+    if (wordKeys.length === 0) return;
 
     // Mélanger aléatoirement l'ordre d'apparition
-    const shuffledKeys = [...letterKeys].sort(() => Math.random() - 0.5);
+    const shuffledKeys = [...wordKeys].sort(() => Math.random() - 0.5);
 
-    // Créer les timeouts pour révéler chaque lettre
-    const timeouts = shuffledKeys.map((letterKey) => {
-      // Délai aléatoire entre 0 et 1000ms
+    // Créer les timeouts pour révéler chaque mot
+    const timeouts = shuffledKeys.map((wordKey) => {
+      // Délai aléatoire entre 0 et 500ms
       const delay = Math.random() * 500;
       
       return setTimeout(() => {
-        setVisibleLetters((prev) => {
+        setVisibleWords((prev) => {
           const next = new Set(prev);
-          next.add(letterKey);
+          next.add(wordKey);
           return next;
         });
       }, delay);
@@ -93,20 +109,20 @@ export default function AnimatedText({ children, animationKey }) {
     };
   }, [processedContent, animationKey]);
 
-  // Appliquer les classes visibles aux lettres
+  // Appliquer les classes visibles aux mots
   useEffect(() => {
     if (!containerRef.current) return;
     
-    const letters = containerRef.current.querySelectorAll(`[data-letter-key]`);
-    letters.forEach((letter) => {
-      const key = letter.getAttribute("data-letter-key");
-      if (visibleLetters.has(key)) {
-        letter.classList.add(styles.visible);
+    const words = containerRef.current.querySelectorAll(`[data-word-key]`);
+    words.forEach((word) => {
+      const key = word.getAttribute("data-word-key");
+      if (visibleWords.has(key)) {
+        word.classList.add(styles.visible);
       } else {
-        letter.classList.remove(styles.visible);
+        word.classList.remove(styles.visible);
       }
     });
-  }, [visibleLetters]);
+  }, [visibleWords]);
 
   return <div ref={containerRef} className={styles.container}>{processedContent}</div>;
 }

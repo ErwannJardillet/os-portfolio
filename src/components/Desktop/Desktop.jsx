@@ -139,7 +139,7 @@ export default function Desktop() {
   // Constantes adaptatives pour la détection de collision
   const ICON_WIDTH = useMemo(() => {
     // Correspond à clamp(60px, 6vw, 80px) du CSS
-    const minWidth = 60;
+    const minWidth = 50;
     const maxWidth = 80;
     const vwWidth = windowSize.width * 0.06;
     return Math.max(minWidth, Math.min(maxWidth, vwWidth));

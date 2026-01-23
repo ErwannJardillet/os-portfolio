@@ -1,19 +1,25 @@
 .container {
   display: contents;
-  white-space: pre-wrap;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
+  line-break: auto;
 }
 
-.letter {
+.word {
   opacity: 0;
   transition: opacity 0.2s ease-in;
   display: inline-block;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
-.letter.space {
-  display: inline;
-  width: 0.25em;
-}
-
-.letter.visible {
+.word.visible {
   opacity: 1;
+}
+
+.space {
+  display: inline;
+  white-space: normal;
 }
