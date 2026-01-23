@@ -52,8 +52,9 @@
 
 .iconImage.hasImage {
   background: transparent;
-  border: clamp(1px, 0.2vw, 2px) solid #000000;
-  background-color: #8f44ffc7;
+  border: clamp(1px, 0.2vw, 2px) solid #00000056;
+  background: #3e00b3;
+  background: radial-gradient(circle, rgba(62, 0, 179, 0.89) 20%, rgba(41, 0, 143, 0.46) 68%);
 }
 
 .iconImg {
