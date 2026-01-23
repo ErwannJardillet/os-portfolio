@@ -14,7 +14,6 @@
 }
 
 .about h2 {
-  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
   font-weight: 700;
   font-size: clamp(1.25rem, 3vw, 1.75rem);
   letter-spacing: -0.02em;
