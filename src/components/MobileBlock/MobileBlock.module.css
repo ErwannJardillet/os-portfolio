@@ -1,0 +1,111 @@
+.mobileBlock {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-in;
+    overflow: hidden;
+}
+
+.content {
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+    
+    /* Effet glassmorphique cohérent avec les fenêtres */
+    background: rgba(116, 116, 116, 0.47);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+}
+
+.icon {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(86, 6, 255, 0.5));
+}
+
+.title {
+    font-family: "Doto", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-weight: 900;
+    font-variation-settings: "ROND" 100;
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease-in;
+}
+
+.message {
+    font-family: "Doto", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-weight: 900;
+    font-variation-settings: "ROND" 50;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive pour très petits écrans */
+@media (max-width: 480px) {
+    .content {
+        padding: 2rem 1.5rem;
+        gap: 1.5rem;
+    }
+    
+    .icon {
+        font-size: 3rem;
+    }
+    
+    .title {
+        font-size: 1.2rem;
+    }
+    
+    .message {
+        font-size: 0.9rem;
+    }
+}
