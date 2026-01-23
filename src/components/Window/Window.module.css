@@ -50,9 +50,15 @@
 
 /* À compléter pour le titre et les actions */
 .title {
-    font-family: 'Jersey 25', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
+    
+  font-family: "Doto", sans-serif;font-family: "Doto", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 900;
+  font-variation-settings:
+    "ROND" 100;
+  
+    font-size: 1.2rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
 }
@@ -66,7 +72,15 @@
 /* Zone de contenu */
 .content {
   padding: clamp(0.75rem, 1.5vw, 1rem) clamp(0.875rem, 1.8vw, 1.125rem) clamp(0.875rem, 1.8vw, 1.125rem);
-  font-family: var(--font-body, 'Inter', sans-serif);
+
+  font-family: "Doto", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 900;
+  font-variation-settings:
+    "ROND" 50;
+
+  font-family: 'Doto', sans-serif;
   font-size: clamp(0.8rem, 1.2vw, 0.9rem);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
