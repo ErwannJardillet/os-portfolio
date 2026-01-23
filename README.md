@@ -1,5 +1,3 @@
-> ⚠️ **Work In Progress** — Ce projet est actuellement en développement actif. Les fonctionnalités peuvent changer et certaines parties peuvent être incomplètes.
-
 # OS Portfolio — React + Vite
 
 Un portfolio interactif présenté comme un système d'exploitation fictif. Explorez mes projets, compétences et informations de contact à travers une interface immersive simulant un environnement de bureau moderne.
@@ -8,16 +6,20 @@ Un portfolio interactif présenté comme un système d'exploitation fictif. Expl
 
 ## 🎨 Caractéristiques
 
+- **Écran de démarrage** : Animation de boot avec messages système et barre de progression
 - **Interface OS-like** : Expérience utilisateur similaire à un système d'exploitation avec bureau, icônes et fenêtres
 - **Glassmorphisme** : Design moderne avec effets de verre dépoli et transparence
-- **Fenêtres interactives** : Fenêtres déplaçables, redimensionnables et minimisables
-- **Icônes déplaçables** : Réorganisez les icônes sur le bureau par glisser-déposer
+- **Fenêtres interactives** : Fenêtres déplaçables avec effet de momentum/inertie et animations fluides
+- **Icônes déplaçables** : Réorganisez les icônes sur le bureau par glisser-déposer avec détection de collisions
 - **Wallpaper animé** : Fond d'écran avec shader gradient animé utilisant Three.js
+- **Audio ambiant** : Lecteur audio intégré avec visualiseur de fréquences et contrôle de volume
+- **Barre des tâches** : Affichage de l'heure, date, batterie et connexion Wi-Fi
 - **Applications intégrées** :
   - **À propos** : Présentation personnelle
   - **Projets** : Portfolio de réalisations
   - **Compétences** : Technologies maîtrisées
   - **Contact** : Informations de contact
+- **Responsive** : Interface adaptative avec blocage des appareils mobiles pour une expérience optimale sur desktop
 
 ## 🛠️ Technologies
 
@@ -26,8 +28,9 @@ Un portfolio interactif présenté comme un système d'exploitation fictif. Expl
 - **Three.js** : Rendu 3D et shaders pour le wallpaper
 - **@react-three/fiber** : Intégration React pour Three.js
 - **@shadergradient/react** : Gradients animés avec shaders
+- **Web Audio API** : Analyse audio et visualisation des fréquences
 - **CSS Modules** : Styles modulaires et encapsulés
-- **State Management** : Gestion d'état custom avec React Hooks
+- **React Hooks** : Gestion d'état et effets personnalisés
 
 ## 📦 Installation
 
@@ -56,7 +59,7 @@ Le projet sera accessible sur `http://localhost:5173` (ou le port indiqué par V
 
 ```
 src/
-├── App.jsx                 # Composant racine
+├── App.jsx                 # Composant racine avec gestion du boot screen
 ├── main.jsx               # Point d'entrée
 ├── apps/                  # Applications du portfolio
 │   ├── About/            # Application "À propos"
@@ -65,10 +68,19 @@ src/
 │   └── Contact/          # Application "Contact"
 ├── components/           # Composants réutilisables
 │   ├── Desktop/         # Bureau principal
-│   ├── DesktopIcon/     # Icônes du bureau
-│   ├── Window/          # Composant fenêtre
-│   ├── Taskbar/         # Barre des tâches
-│   └── Wallpaper/       # Fond d'écran animé
+│   ├── DesktopIcon/     # Icônes du bureau (drag & drop)
+│   ├── Window/          # Composant fenêtre (momentum, animations)
+│   ├── Taskbar/         # Barre des tâches (heure, date, système)
+│   ├── BootScreen/      # Écran de démarrage animé
+│   ├── Wallpaper/       # Fond d'écran animé (shaders)
+│   ├── AudioPlayer/     # Lecteur audio ambiant
+│   ├── AudioVisualizer/ # Visualiseur de fréquences audio
+│   ├── VolumeControl/   # Contrôle du volume
+│   └── MobileBlock/     # Blocage des appareils mobiles
+├── contexts/            # Contextes React
+│   └── AudioContext.jsx # Gestion de l'audio global
+├── hooks/               # Hooks personnalisés
+│   └── useIsMobile.js   # Détection des appareils mobiles
 └── styles/              # Styles globaux
     ├── global.css
     └── theme.css
@@ -78,24 +90,30 @@ src/
 
 ### Gestion des fenêtres
 - Ouverture/fermeture via double-clic sur les icônes
-- Déplacement par glisser-déposer
-- Gestion du z-index pour la superposition
-- Prévention des collisions entre icônes
+- Déplacement par glisser-déposer avec effet de momentum/inertie
+- Animations de fermeture fluides
+- Gestion du z-index pour la superposition (clic pour mettre au premier plan)
+- Positions adaptatives selon la taille de l'écran
+
+### Gestion des icônes
+- Déplacement par glisser-déposer avec grille magnétique adaptative
+- Détection et prévention des collisions entre icônes
+- Positions initiales calculées dynamiquement
+- Réorganisation libre sur le bureau
+
+### Audio et ambiance
+- Lecture automatique d'audio ambiant au démarrage
+- Visualiseur de fréquences en temps réel dans la barre des tâches
+- Contrôle du volume avec slider et mute/unmute
+- Analyse audio via Web Audio API
 
 ### Interface utilisateur
+- Écran de boot avec messages système et barre de progression
 - Design glassmorphique avec effets de transparence
-- Animations fluides
-- Responsive design
-- Thème moderne et futuriste
-
-## 🔮 À venir
-
-- [ ] Système de minimisation des fenêtres
-- [ ] Redimensionnement des fenêtres
-- [ ] Thèmes personnalisables
-- [ ] Plus d'applications
-- [ ] Animations supplémentaires
-- [ ] Optimisations de performance
+- Animations fluides et transitions
+- Barre des tâches avec informations système (heure, date, batterie, Wi-Fi)
+- Wallpaper animé avec shaders Three.js
+- Blocage des appareils mobiles pour une expérience desktop optimale
 
 ## 📝 Licence
 
