@@ -53,6 +53,7 @@
 .iconImage.hasImage {
   background: transparent;
   border: clamp(1px, 0.2vw, 2px) solid #000000;
+  background-color: #8f44ffc7;
 }
 
 .iconImg {
@@ -61,6 +62,7 @@
   object-fit: cover;
   pointer-events: none;
   border-radius: clamp(0.625rem, 1.2vw, 0.75rem);
+  
 }
 
 .iconImg.fullSize {
@@ -75,11 +77,12 @@
 }
 
 .iconLabel {
-  font-family: var(--font-app-title, 'Orbitron', sans-serif);
-  font-size: clamp(0.55rem, 1vw, 0.7rem);
+  font-family: 'Jersey 25', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 200;
   text-align: center;
   line-height: 1.2;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  font-weight: 400;
+  color: #ffffffd8;
 }

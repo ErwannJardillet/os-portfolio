@@ -164,6 +164,8 @@ function onDrag(e) {
   }
 
   return (
+
+    
     <div
       className={`${styles.window} ${isClosing ? styles.closing : ''}`}
       style={style}

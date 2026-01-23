@@ -50,10 +50,10 @@
 
 /* À compléter pour le titre et les actions */
 .title {
-    font-family: var(--font-app-title, 'Orbitron', sans-serif);
+    font-family: 'Jersey 25', sans-serif;
     font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
+    font-weight: 400;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
 }
 
