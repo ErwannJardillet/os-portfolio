@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./Projects.module.css";
+import AnimatedText from "../../components/AnimatedText/AnimatedText";
 
 const sections = [
   {
@@ -74,7 +75,9 @@ export default function Projects() {
     <div className={styles.projects}>
       <section className={styles.section}>
         <h3>{sections[currentSection].title}</h3>
-        {sections[currentSection].content}
+        <AnimatedText animationKey={currentSection}>
+          {sections[currentSection].content}
+        </AnimatedText>
       </section>
       
       <div className={styles.navigation}>

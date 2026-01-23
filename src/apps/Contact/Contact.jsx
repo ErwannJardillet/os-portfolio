@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./Contact.module.css";
+import AnimatedText from "../../components/AnimatedText/AnimatedText";
 
 const sections = [
   {
@@ -62,7 +63,9 @@ export default function Contact() {
     <div className={styles.contact}>
       <section className={styles.section}>
         <h3>{sections[currentSection].title}</h3>
-        {sections[currentSection].content}
+        <AnimatedText animationKey={currentSection}>
+          {sections[currentSection].content}
+        </AnimatedText>
       </section>
       
       <div className={styles.navigation}>

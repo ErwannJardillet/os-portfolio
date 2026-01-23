@@ -1,0 +1,19 @@
+.container {
+  display: contents;
+  white-space: pre-wrap;
+}
+
+.letter {
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
+  display: inline-block;
+}
+
+.letter.space {
+  display: inline;
+  width: 0.25em;
+}
+
+.letter.visible {
+  opacity: 1;
+}
