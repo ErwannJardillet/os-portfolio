@@ -54,29 +54,29 @@ export default function WallpaperShaderGradient({
         threshold={threshold}
         rootMargin={rootMargin}
       >
-        <ShaderGradient
+<ShaderGradient
   animate="on"
   axesHelper="on"
   bgColor1="#000000"
   bgColor2="#000000"
-  brightness={1.1}
+  brightness={0.7}
   cAzimuthAngle={180}
-  cDistance={3.9}
+  cDistance={3.7}
   cPolarAngle={115}
-  cameraZoom={1}
+  cameraZoom={5.2}
   color1="#5606ff"
-  color2="#fe8989"
+  color2="#e04cfe"
   color3="#000000"
   destination="onCanvas"
   embedMode="off"
   envPreset="city"
   format="gif"
-  fov={45}
+  fov={50}
   frameRate={10}
   gizmoHelper="hide"
-  grain="off"
+  grain="on"
   lightType="3d"
-  pixelDensity={1}
+  pixelDensity={1.4}
   positionX={-0.5}
   positionY={0.1}
   positionZ={0}
@@ -84,16 +84,16 @@ export default function WallpaperShaderGradient({
   rangeEnd={40}
   rangeStart={0}
   reflection={0.1}
-  rotationX={0}
+  rotationX={-30}
   rotationY={0}
   rotationZ={235}
   shader="defaults"
   type="waterPlane"
-  uAmplitude={0}
-  uDensity={1.1}
+  uAmplitude={4}
+  uDensity={2.7}
   uFrequency={5.5}
-  uSpeed={0.1}
-  uStrength={2.4}
+  uSpeed={0.3}
+  uStrength={1.2}
   uTime={0.2}
   wireframe={false}
 />
