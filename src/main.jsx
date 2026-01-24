@@ -4,6 +4,19 @@ import App from "./App.jsx";
 import './styles/theme.css';
 import './styles/global.css'
 
+console.log(`
+ ██████████       █████
+▒▒███▒▒▒▒▒█      ▒▒███ 
+ ▒███  █ ▒        ▒███ 
+ ▒██████          ▒███ 
+ ▒███▒▒█          ▒███ 
+ ▒███ ▒   █ ███   ▒███ 
+ ██████████▒▒████████  
+▒▒▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒   
+                       
+                       
+                       
+`);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

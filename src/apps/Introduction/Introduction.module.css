@@ -1,0 +1,122 @@
+.introduction {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.introduction .section {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 0;
+}
+
+.introduction h3 {
+  font-weight: 600;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  letter-spacing: -0.01em;
+  margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+  color: var(--text-color);
+}
+
+.introduction .section[data-section-id="titre"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.introduction .section[data-section-id="titre"] h1 {
+  font-weight: 600;
+  font-size: 4em;
+  letter-spacing: -0.01em;
+  margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+  color: var(--text-color);
+}
+
+.introduction .section[data-section-id="titre"] p {
+}
+
+.introduction p {
+  margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+  line-height: 1.6;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+}
+
+.middleContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+}
+
+.middleContentItem {
+  height: 1px;
+  border-top: 2px dashed var(--text-color);
+  opacity: 0.5;
+  width: 80%;
+  height: 10px;
+  opacity: 0.5;
+  margin: 0 1em;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 2vw, 1.25rem);
+  padding: clamp(1rem, 2vw, 1.25rem) 0;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-color);
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  width: clamp(2rem, 4vw, 2.5rem);
+  height: clamp(2rem, 4vw, 2.5rem);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  user-select: none;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.navButton:active {
+  transform: scale(0.95);
+}
+
+.dots {
+  display: flex;
+  gap: clamp(0.375rem, 0.8vw, 0.5rem);
+  align-items: center;
+}
+
+.dot {
+  width: clamp(0.375rem, 0.8vw, 0.5rem);
+  height: clamp(0.375rem, 0.8vw, 0.5rem);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.dot.active {
+  background: rgba(255, 255, 255, 0.723);
+  width: clamp(0.5rem, 1vw, 0.625rem);
+  height: clamp(0.5rem, 1vw, 0.625rem);
+}

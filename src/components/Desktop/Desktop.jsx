@@ -1,12 +1,13 @@
 import styles from "./Desktop.module.css";
 import Window from "../Window/Window";
 import Taskbar from "../Taskbar/Taskbar";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import DesktopIcon from "../DesktopIcon/DesktopIcon";
 import About from "../../apps/About/About";
 import Contact from "../../apps/Contact/Contact";
 import Projects from "../../apps/Projects/Projects";
 import Skills from "../../apps/Skills/Skills";
+import Introduction from "../../apps/Introduction/Introduction";
 import WallpaperShaderGradient from "../Wallpaper/WallpaperShaderGradient.jsx";
 import AudioPlayer from "../AudioPlayer/AudioPlayer";
 
@@ -16,14 +17,16 @@ const componentMap = {
   Contact,
   Projects,
   Skills,
+  Introduction,
 };
 
 
-export default function Desktop() {
+export default function Desktop({ shouldOpenIntroduction = false }) {
 
   // Initialiser avec un tableau vide - les fenêtres s'ouvrent via les icônes
   const [windows, setWindows] = useState([]);
   const [selectedIcon, setSelectedIcon] = useState(null);
+  const introductionOpenedRef = useRef(false);
   
   // État pour la taille de l'écran
   const [windowSize, setWindowSize] = useState({
@@ -285,6 +288,33 @@ export default function Desktop() {
       ];
     });
   }
+
+  // Ouvrir automatiquement la fenêtre d'introduction
+  useEffect(() => {
+    if (shouldOpenIntroduction && !introductionOpenedRef.current) {
+      introductionOpenedRef.current = true;
+      setWindows((prev) => {
+        const exists = prev.find(w => w.id === "introduction");
+        if (exists) {
+          return prev;
+        }
+        const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
+        return [
+          ...prev,
+          {
+            id: "introduction",
+            title: "Introduction",
+            initialTop: "15%",
+            initialLeft: "15%",
+            width: windowSizes.width,
+            height: windowSizes.heightSmall,
+            component: "Introduction",
+            zIndex: maxZ + 1
+          }
+        ];
+      });
+    }
+  }, [shouldOpenIntroduction]);
 
 
 

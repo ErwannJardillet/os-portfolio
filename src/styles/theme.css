@@ -8,5 +8,8 @@
   
   /* Police pour le corps du texte */
   --font-body: 'Inter', sans-serif;
+  
+  /* Couleur du texte */
+  --text-color: #f5f5f5;
 }
 
