@@ -42,11 +42,44 @@ cd os-portfolio
 # Installer les dépendances
 npm install
 
+# Configurer les variables d'environnement
+cp .env.example .env
+# Éditez .env et ajoutez vos valeurs
+
 # Lancer le serveur de développement
 npm run dev
 ```
 
 Le projet sera accessible sur `http://localhost:5173` (ou le port indiqué par Vite).
+
+## 🔐 Configuration pour GitHub Pages
+
+Pour déployer sur GitHub Pages avec votre token GitHub sans l'exposer dans le code :
+
+1. **Créez un token GitHub** (si vous ne l'avez pas déjà) :
+   - Allez sur [https://github.com/settings/tokens](https://github.com/settings/tokens)
+   - Cliquez sur "Generate new token (classic)"
+   - Cochez la permission `public_repo` (read-only)
+   - Générez et copiez le token
+
+2. **Configurez les secrets GitHub** :
+   - Allez dans votre repository GitHub
+   - Cliquez sur **Settings** → **Secrets and variables** → **Actions**
+   - Cliquez sur **New repository secret**
+   - Ajoutez deux secrets :
+     - `VITE_GITHUB_USERNAME` : votre nom d'utilisateur GitHub
+     - `VITE_GITHUB_TOKEN` : votre token GitHub
+
+3. **Activez GitHub Pages** :
+   - Allez dans **Settings** → **Pages**
+   - Sous **Source**, sélectionnez **GitHub Actions**
+
+4. **Le workflow se déclenchera automatiquement** :
+   - À chaque push sur la branche `main`
+   - Le token sera injecté de manière sécurisée pendant le build
+   - Le site sera déployé sur GitHub Pages
+
+⚠️ **Important** : Le token ne sera jamais visible dans le code source du site déployé, car il est injecté uniquement pendant le build via GitHub Actions.
 
 ## 🚀 Scripts disponibles
 
