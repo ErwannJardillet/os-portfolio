@@ -100,8 +100,8 @@ export default function About() {
 
   return (
     <div className={styles.about}>
+      <h3 className={styles.title}>{sections[currentSection].title}</h3>
       <section className={styles.section}>
-        <h3>{sections[currentSection].title}</h3>
         <AnimatedText animationKey={currentSection}>
           {sections[currentSection].content}
         </AnimatedText>

@@ -71,11 +71,11 @@ export default function Introduction() {
 
   return (
     <div className={styles.introduction}>
+      <h3 className={styles.title}>{sections[currentSection].title}</h3>
       <section
         className={styles.section}
         data-section-id={sections[currentSection].id}
       >
-        <h3>{sections[currentSection].title}</h3>
         <AnimatedText animationKey={currentSection}>
           {sections[currentSection].content}
         </AnimatedText>

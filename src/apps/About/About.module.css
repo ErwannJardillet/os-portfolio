@@ -7,10 +7,20 @@
   min-height: 0;
 }
 
+.about .title {
+  font-weight: 600;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  letter-spacing: -0.01em;
+  margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+  color: var(--text-color);
+  flex-shrink: 0;
+}
+
 .about .section {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 0;
+  min-height: 0;
 }
 
 .about h2 {
@@ -25,15 +35,6 @@
   margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
   line-height: 1.6;
   font-size: clamp(0.85rem, 1.2vw, 0.9rem);
-}
-
-.about h3 {
-
-  font-weight: 600;
-  font-size: clamp(1rem, 2.5vw, 1.35rem);
-  letter-spacing: -0.01em;
-  margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
-  color: var(--text-color);
 }
 
 .about ul {
