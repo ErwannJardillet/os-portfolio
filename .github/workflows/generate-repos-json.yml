@@ -1,51 +1,29 @@
-- name: Generate repos.json from GitHub API
-  env:
-    GH_TOKEN: ${{ secrets.GH_TOKEN }}
-    USERNAME: ${{ github.repository_owner }}
-  run: |
-    set -euo pipefail
-    mkdir -p public
+name: Generate repos.json
 
-    echo "Generating public/repos.json for USERNAME=$USERNAME"
-    curl -sS \
-      -H "Authorization: Bearer $GH_TOKEN" \
-      -H "Accept: application/vnd.github+json" \
-      "https://api.github.com/users/$USERNAME/repos?per_page=100&sort=updated" \
-    | jq '[ .[]
-            | select(.fork == false)
-            | {
-                name: .name,
-                description: .description,
-                url: .html_url,
-                homepage: .homepage,
-                stars: .stargazers_count,
-                language: .language,
-                topics: (.topics // []),
-                updated: .updated_at
-              } ]' > public/repos.json
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-    echo "----- public/ content -----"
-    ls -la public
-    echo "----- repos.json preview -----"
-    head -c 500 public/repos.json || true
-    echo
+permissions:
+  contents: write
 
-- name: Commit changes (if any)
-  run: |
-    set -euo pipefail
-    git status
-    git diff --stat || true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    if git diff --quiet; then
-      echo "No changes"
-      exit 0
-    fi
+      - name: Generate repos.json from GitHub API
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          mkdir -p public
 
-    git config user.name "github-actions[bot]"
-    git config user.email "github-actions[bot]@users.noreply.github.com"
-
-    # Si jamais repos.json est ignoré par .gitignore, ceci le force
-    git add -f public/repos.json
-
-    git commit -m "chore: update repos.json"
-    git push
+          curl -sS \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/users/$USERNAM
