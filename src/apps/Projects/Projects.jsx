@@ -1,112 +1,201 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Projects.module.css";
+import { useGitHubRepos } from "../../hooks/useGitHubRepos";
 import AnimatedText from "../../components/AnimatedText/AnimatedText";
 
-const sections = [
-  {
-    id: "project1",
-    title: "Refonte et sécurisation d'une application web",
-    content: (
-      <div className={styles.projectCard}>
-        <div className={styles.projectMeta}>
-          <strong>2024</strong> — <em>IUT de Valence</em>
-          <span className={styles.projectType}>Projet académique</span>
-        </div>
-        <ul>
-          <li>Audit complet de l'application existante et identification des axes d'amélioration</li>
-          <li>Conception et implémentation d'une nouvelle interface utilisateur</li>
-          <li>Développement backend en PHP avec le framework Symfony</li>
-          <li>Correction et prévention des vulnérabilités de sécurité</li>
-          <li>Rédaction d'une documentation technique complète pour les développeurs</li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    id: "project2",
-    title: "Gestion de la réception des dons",
-    content: (
-      <div className={styles.projectCard}>
-        <div className={styles.projectMeta}>
-          <strong>2023</strong> — <em>Institut Mines-Télécom Paris</em>
-        </div>
-        <ul>
-          <li>Administration et traitement des données de donateurs</li>
-          <li>Automatisation de la génération des reçus fiscaux</li>
-          <li>Consolidation de données provenant de sources multiples</li>
-          <li>Optimisation des processus de saisie et de traitement</li>
-          <li>Assurance de la conformité et de la précision des documents générés</li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    id: "project3",
-    title: "Développement web et support client",
-    content: (
-      <div className={styles.projectCard}>
-        <div className={styles.projectMeta}>
-          <strong>2022</strong> — <em>KE-Booking, Grenoble</em>
-        </div>
-        <ul>
-          <li>Implémentation de nouvelles fonctionnalités sur la plateforme web</li>
-          <li>Interface client : analyse des besoins et recueil des retours utilisateurs</li>
-          <li>Résolution proactive des problèmes techniques rencontrés par les clients</li>
-          <li>Collaboration étroite avec l'équipe de développement</li>
-          <li>Amélioration continue de l'expérience utilisateur</li>
-        </ul>
-      </div>
-    ),
-  },
-];
-
 export default function Projects() {
-  const [currentSection, setCurrentSection] = useState(0);
+  const { repos, loading, error } = useGitHubRepos();
+  const [activeTab, setActiveTab] = useState(0);
 
-  const goToPrevious = () => {
-    setCurrentSection((prev) => (prev > 0 ? prev - 1 : sections.length - 1));
+  // Réinitialiser l'onglet actif si nécessaire
+  useEffect(() => {
+    if (repos.length > 0 && activeTab >= repos.length) {
+      setActiveTab(0);
+    }
+  }, [repos.length, activeTab]);
+
+  // Formatage de la date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(date);
   };
 
-  const goToNext = () => {
-    setCurrentSection((prev) => (prev < sections.length - 1 ? prev + 1 : 0));
-  };
+  if (loading) {
+    return (
+      <div className={styles.projects}>
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <p>Chargement des projets...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    // Déterminer le type d'erreur pour afficher un message approprié
+    const isRateLimitError = error.includes("rate limit") || error.includes("Limite de requêtes");
+    const isUsernameError = error.includes("VITE_GITHUB_USERNAME");
+
+    return (
+      <div className={styles.projects}>
+        <div className={styles.error}>
+          <h3 className={styles.title}>Erreur</h3>
+          <p>{error}</p>
+          {isRateLimitError && (
+            <div className={styles.errorHint}>
+              <p>
+                <strong>Solution :</strong> Créez un token GitHub pour augmenter la limite :
+              </p>
+              <ol className={styles.errorSteps}>
+                <li>Allez sur <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">https://github.com/settings/tokens</a></li>
+                <li>Cliquez sur "Generate new token (classic)"</li>
+                <li>Cochez la permission "public_repo" (read-only)</li>
+                <li>Générez le token et copiez-le</li>
+                <li>Ajoutez-le dans votre fichier .env : <code>VITE_GITHUB_TOKEN=votre_token</code></li>
+                <li>Redémarrez le serveur de développement</li>
+              </ol>
+            </div>
+          )}
+          {isUsernameError && (
+            <p className={styles.errorHint}>
+              Assurez-vous que VITE_GITHUB_USERNAME est défini dans votre fichier .env
+              et redémarrez le serveur de développement.
+            </p>
+          )}
+          {!isRateLimitError && !isUsernameError && (
+            <p className={styles.errorHint}>
+              Vérifiez votre configuration dans le fichier .env et redémarrez le serveur de développement.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (repos.length === 0) {
+    return (
+      <div className={styles.projects}>
+        <div className={styles.empty}>
+          <h3 className={styles.title}>Aucun projet trouvé</h3>
+          <p>Aucun repository épinglé trouvé sur votre profil GitHub.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Sécurité : s'assurer que l'onglet actif est valide
+  const safeActiveTab = Math.min(activeTab, repos.length - 1);
+  const currentRepo = repos[safeActiveTab];
+
+  if (!currentRepo) {
+    return (
+      <div className={styles.projects}>
+        <div className={styles.empty}>
+          <h3 className={styles.title}>Erreur</h3>
+          <p>Impossible de charger les informations du repository.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.projects}>
-      <h3 className={styles.title}>{sections[currentSection].title}</h3>
-      <section className={styles.section}>
-        <AnimatedText animationKey={currentSection}>
-          {sections[currentSection].content}
-        </AnimatedText>
-      </section>
-      
-      <div className={styles.navigation}>
-        <button 
-          className={styles.navButton}
-          onClick={goToPrevious}
-          aria-label="Section précédente"
-        >
-          &lt;
-        </button>
-        <div className={styles.dots}>
-          {sections.map((_, index) => (
-            <span
-              key={index}
-              className={`${styles.dot} ${index === currentSection ? styles.active : ""}`}
-            />
+      {/* Barre d'onglets */}
+      <div className={styles.tabsContainer}>
+        <div className={styles.tabs}>
+          {repos.map((repo, index) => (
+            <button
+              key={repo.name}
+              className={`${styles.tab} ${
+                index === activeTab ? styles.tabActive : ""
+              }`}
+              onClick={() => setActiveTab(index)}
+              aria-label={`Onglet ${repo.name}`}
+              aria-selected={index === activeTab}
+            >
+              {repo.name}
+            </button>
           ))}
         </div>
-        <button 
-          className={styles.navButton}
-          onClick={goToNext}
-          aria-label="Section suivante"
-        >
-          &gt;
-        </button>
+      </div>
+
+      {/* Contenu de l'onglet actif */}
+      <div className={styles.tabContent}>
+        <AnimatedText animationKey={safeActiveTab}>
+          <div className={styles.repoCard}>
+            <div className={styles.repoHeader}>
+              <h3 className={styles.repoTitle}>{currentRepo.name}</h3>
+              <a
+                href={currentRepo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.repoLink}
+                aria-label={`Voir ${currentRepo.name} sur GitHub`}
+              >
+                ↗ GitHub
+              </a>
+            </div>
+
+            <p className={styles.repoDescription}>{currentRepo.description}</p>
+
+            {/* Stats */}
+            <div className={styles.repoStats}>
+              <div className={styles.stat}>
+                <span className={styles.statIcon}>⭐</span>
+                <span>{currentRepo.stars}</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statIcon}>🍴</span>
+                <span>{currentRepo.forks}</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statIcon}>🕒</span>
+                <span>Mis à jour {formatDate(currentRepo.updatedAt)}</span>
+              </div>
+            </div>
+
+            {/* Langages */}
+            {currentRepo.languages.length > 0 && (
+              <div className={styles.repoLanguages}>
+                <h4 className={styles.sectionTitle}>Langages</h4>
+                <div className={styles.languagesList}>
+                  {currentRepo.languages.map((lang) => (
+                    <span
+                      key={lang.name}
+                      className={styles.languageTag}
+                      style={{ "--lang-color": lang.color }}
+                    >
+                      <span
+                        className={styles.languageDot}
+                        style={{ backgroundColor: lang.color }}
+                      ></span>
+                      {lang.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Topics */}
+            {currentRepo.topics.length > 0 && (
+              <div className={styles.repoTopics}>
+                <h4 className={styles.sectionTitle}>Topics</h4>
+                <div className={styles.topicsList}>
+                  {currentRepo.topics.map((topic) => (
+                    <span key={topic} className={styles.topicTag}>
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </AnimatedText>
       </div>
     </div>
   );
 }
-
-
-
