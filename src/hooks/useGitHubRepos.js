@@ -66,7 +66,8 @@ export function useGitHubRepos() {
         };
 
         // Ajouter le token si disponible (optionnel mais recommandé pour augmenter les limites)
-        if (token) {
+        // Ignorer les tokens qui sont des placeholders ou invalides
+        if (token && token !== "votre_token_github" && token.trim() !== "") {
           headers.Authorization = `Bearer ${token}`;
         }
 

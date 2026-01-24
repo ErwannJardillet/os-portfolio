@@ -7,6 +7,12 @@ export default function Projects() {
   const { repos, loading, error } = useGitHubRepos();
   const [activeTab, setActiveTab] = useState(0);
 
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Projects.jsx:7',message:'Projects component render',data:{activeTab,reposCount:repos.length,loading,hasError:!!error},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+  });
+  // #endregion
+
   // Réinitialiser l'onglet actif si nécessaire
   useEffect(() => {
     if (repos.length > 0 && activeTab >= repos.length) {

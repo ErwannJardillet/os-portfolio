@@ -10,6 +10,32 @@ export default function AnimatedText({ children, animationKey }) {
   const [visibleWords, setVisibleWords] = useState(new Set());
   const containerRef = useRef(null);
   const wordKeysRef = useMemo(() => new Map(), []);
+  const lastAnimatedHashRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  // Fonction pour extraire récursivement le texte des children
+  const extractTextContent = (node) => {
+    if (typeof node === "string" || typeof node === "number") {
+      return String(node);
+    }
+    if (Array.isArray(node)) {
+      return node.map(extractTextContent).join("");
+    }
+    if (isValidElement(node)) {
+      return extractTextContent(node.props?.children);
+    }
+    return "";
+  };
+
+  // Créer un hash stable basé sur animationKey + contenu texte réel
+  const contentHash = useMemo(() => {
+    const currentTextContent = extractTextContent(children);
+    return `${animationKey || ''}-${currentTextContent}`;
+  }, [children, animationKey]);
+
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:9',message:'Component render',data:{animationKey,contentHash,lastAnimatedHash:lastAnimatedHashRef.current,shouldAnimate:contentHash !== lastAnimatedHashRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
 
   // Fonction récursive pour traiter les enfants et remplacer le texte par des mots individuels
   const processChildren = (children, parentKey = "root") => {
@@ -78,36 +104,71 @@ export default function AnimatedText({ children, animationKey }) {
     return processChildren(children);
   }, [children, animationKey]);
 
-  // Réinitialiser l'animation quand le contenu change
+  // Réinitialiser l'animation seulement quand le contenu change vraiment
+  // Utiliser processedContent comme dépendance pour s'assurer que wordKeysRef est rempli
   useEffect(() => {
-    setVisibleWords(new Set());
+    // Ne relancer l'animation que si le hash a changé (nouveau contenu ou nouvelle animationKey)
+    if (contentHash === lastAnimatedHashRef.current) {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:113',message:'Animation skipped - same hash',data:{contentHash,lastAnimatedHash:lastAnimatedHashRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      return;
+    }
 
-    const wordKeys = Array.from(wordKeysRef.keys());
-    
-    if (wordKeys.length === 0) return;
+    // Attendre que le DOM soit mis à jour pour que wordKeysRef soit rempli
+    // Utiliser requestAnimationFrame pour s'assurer que processedContent est rendu
+    const timeoutId = requestAnimationFrame(() => {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:113',message:'Animation useEffect triggered - new content',data:{contentHash,lastAnimatedHash:lastAnimatedHashRef.current,animationKey},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
 
-    // Mélanger aléatoirement l'ordre d'apparition
-    const shuffledKeys = [...wordKeys].sort(() => Math.random() - 0.5);
+      // Marquer ce hash comme animé AVANT de démarrer l'animation
+      lastAnimatedHashRef.current = contentHash;
+      setVisibleWords(new Set());
 
-    // Créer les timeouts pour révéler chaque mot
-    const timeouts = shuffledKeys.map((wordKey) => {
-      // Délai aléatoire entre 0 et 500ms
-      const delay = Math.random() * 500;
+      const wordKeys = Array.from(wordKeysRef.keys());
       
-      return setTimeout(() => {
-        setVisibleWords((prev) => {
-          const next = new Set(prev);
-          next.add(wordKey);
-          return next;
-        });
-      }, delay);
+      if (wordKeys.length === 0) {
+        // #region agent log
+        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:131',message:'No words found, skipping animation',data:{contentHash},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
+        return;
+      }
+
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:135',message:'Starting animation',data:{wordCount:wordKeys.length,contentHash},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+
+      // Mélanger aléatoirement l'ordre d'apparition
+      const shuffledKeys = [...wordKeys].sort(() => Math.random() - 0.5);
+
+      // Créer les timeouts pour révéler chaque mot
+      const timeouts = shuffledKeys.map((wordKey) => {
+        // Délai aléatoire entre 0 et 500ms
+        const delay = Math.random() * 500;
+        
+        return setTimeout(() => {
+          setVisibleWords((prev) => {
+            const next = new Set(prev);
+            next.add(wordKey);
+            return next;
+          });
+        }, delay);
+      });
+
+      // Stocker les timeouts pour le nettoyage
+      timeoutRef.current = timeouts;
     });
 
     // Nettoyer les timeouts au démontage ou changement de contenu
     return () => {
-      timeouts.forEach((timeout) => clearTimeout(timeout));
+      cancelAnimationFrame(timeoutId);
+      if (timeoutRef.current) {
+        timeoutRef.current.forEach((timeout) => clearTimeout(timeout));
+        timeoutRef.current = null;
+      }
     };
-  }, [processedContent, animationKey]);
+  }, [contentHash, processedContent]);
 
   // Appliquer les classes visibles aux mots
   useEffect(() => {
