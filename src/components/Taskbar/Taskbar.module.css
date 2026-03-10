@@ -81,6 +81,17 @@
 
 .dateItem {
   font-size: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.dateDay {
+  white-space: nowrap;
+}
+
+.dateRest {
   white-space: nowrap;
 }
 
@@ -145,4 +156,78 @@
   height: 18px;
   background: rgba(255, 255, 255, 0.12);
   margin: 0 6px;
+}
+
+/* Mobile : taskbar verticale à gauche */
+@media (max-width: 768px) {
+  .taskbar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: none;
+    min-width: auto;
+    width: 52px;
+    min-height: 100%;
+    height: auto;
+    padding: 12px 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    border-radius: 0 18px 18px 0;
+  }
+
+  .leftArea,
+  .centerArea,
+  .rightArea {
+    flex-direction: column;
+    flex: none;
+    width: 100%;
+    justify-content: center;
+    min-height: auto;
+  }
+
+  .centerArea {
+    display: none;
+  }
+
+  .osBadge {
+    padding: 4px 6px;
+    font-size: 0.5rem;
+    letter-spacing: 0.05em;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(0deg);
+  }
+
+  .rightArea {
+    flex: 1;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .divider {
+    width: 24px;
+    height: 1px;
+    margin: 4px 0;
+  }
+
+  .systemItem {
+    flex-direction: column;
+  }
+
+  .dateItem {
+    font-size: 0.55rem;
+  }
+
+  .bar:nth-child(1) {
+    height: 6px;
+  }
+  .bar:nth-child(2) {
+    height: 9px;
+  }
+  .bar:nth-child(3) {
+    height: 12px;
+  }
 }

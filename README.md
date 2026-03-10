@@ -14,9 +14,10 @@ Un portfolio interactif présenté comme un système d'exploitation fictif. Expl
 - **Wallpaper animé** : Fond d'écran avec shader gradient animé utilisant Three.js
 - **Audio ambiant** : Lecteur audio intégré avec visualiseur de fréquences et contrôle de volume
 - **Barre des tâches** : Affichage de l'heure, date, batterie et connexion Wi-Fi
+- **Fenêtre d'introduction** : Présentation interactive qui s'ouvre automatiquement après le boot
 - **Applications intégrées** :
   - **À propos** : Présentation personnelle
-  - **Projets** : Portfolio de réalisations
+  - **Projets** : Portfolio avec intégration GitHub (repos épinglés ou publics)
   - **Compétences** : Technologies maîtrisées
   - **Contact** : Informations de contact
 - **Responsive** : Interface adaptative avec blocage des appareils mobiles pour une expérience optimale sur desktop
@@ -24,11 +25,12 @@ Un portfolio interactif présenté comme un système d'exploitation fictif. Expl
 ## 🛠️ Technologies
 
 - **React 19** : Framework UI moderne
-- **Vite** : Build tool rapide et optimisé
+- **Vite 7** : Build tool rapide et optimisé
 - **Three.js** : Rendu 3D et shaders pour le wallpaper
 - **@react-three/fiber** : Intégration React pour Three.js
 - **@shadergradient/react** : Gradients animés avec shaders
 - **Web Audio API** : Analyse audio et visualisation des fréquences
+- **GitHub API** : Récupération des repos (GraphQL avec token, REST en fallback)
 - **CSS Modules** : Styles modulaires et encapsulés
 - **React Hooks** : Gestion d'état et effets personnalisés
 
@@ -42,9 +44,10 @@ cd os-portfolio
 # Installer les dépendances
 npm install
 
-# Configurer les variables d'environnement
-cp .env.example .env
-# Éditez .env et ajoutez vos valeurs
+# Configurer les variables d'environnement (optionnel pour un aperçu local)
+# Créez un fichier .env à la racine avec :
+# VITE_GITHUB_USERNAME=votre_nom_utilisateur  (requis pour l'app Projets)
+# VITE_GITHUB_TOKEN=votre_token               (optionnel, pour plus de requêtes API)
 
 # Lancer le serveur de développement
 npm run dev
@@ -93,28 +96,31 @@ Pour déployer sur GitHub Pages avec votre token GitHub sans l'exposer dans le c
 ```
 src/
 ├── App.jsx                 # Composant racine avec gestion du boot screen
-├── main.jsx               # Point d'entrée
-├── apps/                  # Applications du portfolio
-│   ├── About/            # Application "À propos"
-│   ├── Projects/         # Application "Projets"
-│   ├── Skills/           # Application "Compétences"
-│   └── Contact/          # Application "Contact"
-├── components/           # Composants réutilisables
-│   ├── Desktop/         # Bureau principal
-│   ├── DesktopIcon/     # Icônes du bureau (drag & drop)
-│   ├── Window/          # Composant fenêtre (momentum, animations)
-│   ├── Taskbar/         # Barre des tâches (heure, date, système)
-│   ├── BootScreen/      # Écran de démarrage animé
-│   ├── Wallpaper/       # Fond d'écran animé (shaders)
-│   ├── AudioPlayer/     # Lecteur audio ambiant
-│   ├── AudioVisualizer/ # Visualiseur de fréquences audio
-│   ├── VolumeControl/   # Contrôle du volume
-│   └── MobileBlock/     # Blocage des appareils mobiles
-├── contexts/            # Contextes React
-│   └── AudioContext.jsx # Gestion de l'audio global
-├── hooks/               # Hooks personnalisés
-│   └── useIsMobile.js   # Détection des appareils mobiles
-└── styles/              # Styles globaux
+├── main.jsx                # Point d'entrée
+├── apps/                   # Applications du portfolio
+│   ├── About/              # Application "À propos"
+│   ├── Projects/           # Application "Projets" (intégration GitHub)
+│   ├── Skills/             # Application "Compétences"
+│   ├── Contact/            # Application "Contact"
+│   └── Introduction/      # Fenêtre d'introduction (ouverte après le boot)
+├── components/             # Composants réutilisables
+│   ├── Desktop/            # Bureau principal
+│   ├── DesktopIcon/        # Icônes du bureau (drag & drop)
+│   ├── Window/             # Composant fenêtre (momentum, animations)
+│   ├── Taskbar/            # Barre des tâches (heure, date, système)
+│   ├── BootScreen/         # Écran de démarrage animé
+│   ├── Wallpaper/          # Fond d'écran animé (shaders)
+│   ├── AudioPlayer/        # Lecteur audio ambiant
+│   ├── AudioVisualizer/    # Visualiseur de fréquences audio
+│   ├── VolumeControl/      # Contrôle du volume
+│   ├── AnimatedText/       # Texte animé
+│   └── MobileBlock/        # Blocage des appareils mobiles
+├── contexts/               # Contextes React
+│   └── AudioContext.jsx    # Gestion de l'audio global
+├── hooks/                  # Hooks personnalisés
+│   ├── useIsMobile.js      # Détection des appareils mobiles
+│   └── useGitHubRepos.js   # Récupération des repos GitHub (GraphQL/REST)
+└── styles/                 # Styles globaux
     ├── global.css
     └── theme.css
 ```
@@ -127,12 +133,19 @@ src/
 - Animations de fermeture fluides
 - Gestion du z-index pour la superposition (clic pour mettre au premier plan)
 - Positions adaptatives selon la taille de l'écran
+- Fenêtre d'introduction ouverte automatiquement après le boot
 
 ### Gestion des icônes
 - Déplacement par glisser-déposer avec grille magnétique adaptative
 - Détection et prévention des collisions entre icônes
 - Positions initiales calculées dynamiquement
 - Réorganisation libre sur le bureau
+
+### Projets et GitHub
+- Intégration API GitHub pour afficher les projets
+- Avec token : repos épinglés via GraphQL (langages, topics, étoiles)
+- Sans token : API REST en fallback (limite de requêtes réduite)
+- Variables d'environnement : `VITE_GITHUB_USERNAME` (requis), `VITE_GITHUB_TOKEN` (optionnel)
 
 ### Audio et ambiance
 - Lecture automatique d'audio ambiant au démarrage

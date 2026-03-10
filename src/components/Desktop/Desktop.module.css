@@ -30,3 +30,11 @@
   z-index: 1;
   pointer-events: auto;
 }
+
+/* Mobile : marge pour la taskbar verticale à gauche */
+@media (max-width: 768px) {
+  .iconsArea {
+    left: 52px;
+    width: calc(100% - 52px);
+  }
+}

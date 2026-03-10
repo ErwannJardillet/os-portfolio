@@ -46,6 +46,7 @@
 
     cursor: grab;
     user-select: none;
+    touch-action: none;
 }
 
 /* À compléter pour le titre et les actions */
@@ -197,5 +198,12 @@
     to {
         opacity: 0;
         filter: blur(20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .window {
+        min-width: 280px;
+        min-height: 200px;
     }
 }

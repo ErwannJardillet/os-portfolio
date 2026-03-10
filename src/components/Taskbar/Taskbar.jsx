@@ -9,7 +9,8 @@ export default function Taskbar() {
   const batteryLevel = 78; // en pourcentage
   const [now, setNow] = useState(new Date());
   const time = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-  const date = now.toLocaleDateString("fr-FR", { weekday: "short", day: "2-digit", month: "short" });
+  const dateDay = now.toLocaleDateString("fr-FR", { weekday: "short" });
+  const dateRest = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
 
 
   useEffect(() => {
@@ -33,7 +34,10 @@ export default function Taskbar() {
         <AudioVisualizer />
         <VolumeControl />
         <div className={styles.divider}></div>
-        <div className={`${styles.systemItem} ${styles.dateItem}`}>{date}</div>
+        <div className={`${styles.systemItem} ${styles.dateItem}`}>
+          <span className={styles.dateDay}>{dateDay}</span>
+          <span className={styles.dateRest}>{dateRest}</span>
+        </div>
         <div className={styles.divider}></div>
         <div className={`${styles.systemItem} ${styles.timeItem}`}>{time}</div>
 

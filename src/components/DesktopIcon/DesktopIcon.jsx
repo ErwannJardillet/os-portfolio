@@ -1,6 +1,12 @@
 import styles from "./DesktopIcon.module.css";
 import { useState, useEffect, useRef } from "react";
 
+function getClientCoords(e) {
+  if (e.touches?.[0]) return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+  if (e.changedTouches?.[0]) return { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY };
+  return { clientX: e.clientX, clientY: e.clientY };
+}
+
 // Valeurs par défaut pour la grille (utilisées si gridConfig n'est pas fourni)
 const DEFAULT_GRID_SIZE_X = 100;
 const DEFAULT_GRID_SIZE_Y = 112;
@@ -34,19 +40,13 @@ export default function DesktopIcon({
     setCurrentPosition(position);
   }, [position]);
 
-  const handleMouseDown = (e) => {
-    // Ne pas démarrer le drag sur un double-clic
-    if (e.detail === 2) {
-      return;
-    }
-
+  const handlePointerDown = (e) => {
+    if (e.detail === 2) return;
     e.stopPropagation();
-    
+
+    const { clientX, clientY } = getClientCoords(e);
     const rect = iconRef.current.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-    
-    dragOffsetRef.current = { x: offsetX, y: offsetY };
+    dragOffsetRef.current = { x: clientX - rect.left, y: clientY - rect.top };
     hasDraggedRef.current = false;
     setIsDragging(true);
   };
@@ -54,91 +54,85 @@ export default function DesktopIcon({
   useEffect(() => {
     if (!isDragging) return;
 
-    const handleMouseMove = (e) => {
-      const desktop = document.querySelector('[class*="desktop"]');
-      if (!desktop || !iconRef.current) return;
+    const getContainerRect = () => {
+      const container = iconRef.current?.parentElement;
+      return container ? container.getBoundingClientRect() : null;
+    };
+
+    const handleMove = (e) => {
+      const containerRect = getContainerRect();
+      if (!containerRect || !iconRef.current) return;
 
       hasDraggedRef.current = true;
+      if (e.cancelable) e.preventDefault();
 
-      const desktopRect = desktop.getBoundingClientRect();
-      const newX = e.clientX - desktopRect.left - dragOffsetRef.current.x;
-      const newY = e.clientY - desktopRect.top - dragOffsetRef.current.y;
+      const { clientX, clientY } = getClientCoords(e);
+      const newX = clientX - containerRect.left - dragOffsetRef.current.x;
+      const newY = clientY - containerRect.top - dragOffsetRef.current.y;
 
-      // Limiter aux limites du bureau (avec marges)
-      // Calculer les tailles adaptatives (correspondent au CSS)
       const minWidth = 60;
       const maxWidth = 80;
-      const vwWidth = desktopRect.width * 0.06;
+      const vwWidth = containerRect.width * 0.06;
       const iconWidth = Math.max(minWidth, Math.min(maxWidth, vwWidth));
-      
       const minHeight = 75;
       const maxHeight = 100;
-      const vwHeight = desktopRect.height * 0.075;
+      const vwHeight = containerRect.height * 0.075;
       const iconHeight = Math.max(minHeight, Math.min(maxHeight, vwHeight));
-      
-      const margin = GRID_OFFSET_X; // Utiliser le même offset que la grille
-      const maxX = desktopRect.width - iconWidth - margin;
-      const maxY = desktopRect.height - iconHeight - margin;
+      const margin = GRID_OFFSET_X;
+      const maxX = containerRect.width - iconWidth - margin;
+      const maxY = containerRect.height - iconHeight - margin;
 
       const clampedX = Math.max(margin, Math.min(newX, maxX));
       const clampedY = Math.max(margin, Math.min(newY, maxY));
-
       setCurrentPosition({ x: clampedX, y: clampedY });
     };
 
-    const handleMouseUp = (e) => {
+    const handleUp = (e) => {
       setIsDragging(false);
-      
-      if (!hasDraggedRef.current) {
-        return;
-      }
+      if (!hasDraggedRef.current) return;
 
-      const desktop = document.querySelector('[class*="desktop"]');
-      if (!desktop) return;
+      const containerRect = getContainerRect();
+      if (!containerRect) return;
 
-      const desktopRect = desktop.getBoundingClientRect();
-      const finalX = e.clientX - desktopRect.left - dragOffsetRef.current.x;
-      const finalY = e.clientY - desktopRect.top - dragOffsetRef.current.y;
+      const { clientX, clientY } = getClientCoords(e);
+      const finalX = clientX - containerRect.left - dragOffsetRef.current.x;
+      const finalY = clientY - containerRect.top - dragOffsetRef.current.y;
 
-      // Limiter aux limites du bureau (avec marges)
-      // Calculer les tailles adaptatives (correspondent au CSS)
       const minWidth = 60;
       const maxWidth = 80;
-      const vwWidth = desktopRect.width * 0.06;
+      const vwWidth = containerRect.width * 0.06;
       const iconWidth = Math.max(minWidth, Math.min(maxWidth, vwWidth));
-      
       const minHeight = 75;
       const maxHeight = 100;
-      const vwHeight = desktopRect.height * 0.075;
+      const vwHeight = containerRect.height * 0.075;
       const iconHeight = Math.max(minHeight, Math.min(maxHeight, vwHeight));
-      
-      const margin = GRID_OFFSET_X; // Utiliser le même offset que la grille
-      const maxX = desktopRect.width - iconWidth - margin;
-      const maxY = desktopRect.height - iconHeight - margin;
+      const margin = GRID_OFFSET_X;
+      const maxX = containerRect.width - iconWidth - margin;
+      const maxY = containerRect.height - iconHeight - margin;
 
       const clampedX = Math.max(margin, Math.min(finalX, maxX));
       const clampedY = Math.max(margin, Math.min(finalY, maxY));
-      
-      // Appliquer le snap sur grille avec offset pour correspondre aux positions initiales
       const snappedX = Math.round((clampedX - GRID_OFFSET_X) / GRID_SIZE_X) * GRID_SIZE_X + GRID_OFFSET_X;
       const snappedY = Math.round((clampedY - GRID_OFFSET_Y) / GRID_SIZE_Y) * GRID_SIZE_Y + GRID_OFFSET_Y;
-      
       const finalPosition = { x: snappedX, y: snappedY };
       setCurrentPosition(finalPosition);
-      
-      if (onPositionChange) {
-        onPositionChange(finalPosition);
-      }
+      onPositionChange?.(finalPosition);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('touchend', handleUp);
+    document.addEventListener('touchcancel', handleUp);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+      document.removeEventListener('touchmove', handleMove, { passive: false });
+      document.removeEventListener('touchend', handleUp);
+      document.removeEventListener('touchcancel', handleUp);
     };
-  }, [isDragging, onPositionChange]);
+  }, [isDragging, onPositionChange, GRID_OFFSET_X, GRID_OFFSET_Y, GRID_SIZE_X, GRID_SIZE_Y]);
 
   const handleClick = (e) => {
     // Ne pas sélectionner si on vient de finir un drag
@@ -170,7 +164,8 @@ export default function DesktopIcon({
         left: `${currentPosition.x}px`,
         top: `${currentPosition.y}px`
       }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={handlePointerDown}
+      onTouchStart={handlePointerDown}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >

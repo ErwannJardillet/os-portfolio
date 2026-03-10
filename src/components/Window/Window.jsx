@@ -2,6 +2,17 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import styles from "./Window.module.css";
 
+/** Récupère les coordonnées client (souris ou tactile) */
+function getClientCoords(e) {
+  if (e.touches && e.touches.length > 0) {
+    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+  }
+  if (e.changedTouches && e.changedTouches.length > 0) {
+    return { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY };
+  }
+  return { clientX: e.clientX, clientY: e.clientY };
+}
+
 export default function Window({
   id,
   title = "PlaceHolder",
@@ -62,19 +73,34 @@ export default function Window({
     return value;
   };
 
+  const TASKBAR_WIDTH = 52;
+  const MARGIN = 8;
+
   // Position locale de la fenêtre
-  const [position, setPosition] = useState(() => ({
-    top: parsePosition(initialTop, true),
-    left: parsePosition(initialLeft, false),
-  }));
+  const [position, setPosition] = useState(() => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const left = typeof initialLeft === 'string' && initialLeft.includes('%')
+      ? (w * parseFloat(initialLeft)) / 100
+      : parseInt(initialLeft, 10) || 100;
+    const top = typeof initialTop === 'string' && initialTop.includes('%')
+      ? (h * parseFloat(initialTop)) / 100
+      : parseInt(initialTop, 10) || 100;
+    const minLeft = w <= 768 ? TASKBAR_WIDTH + MARGIN : MARGIN;
+    return { top, left: Math.max(left, minLeft) };
+  });
 
   // Recalculer la position quand la taille de l'écran change
   useEffect(() => {
+    const left = parsePosition(initialLeft, false);
+    const top = parsePosition(initialTop, true);
+    const mobile = windowSize.width <= 768;
+    const minLeft = mobile ? TASKBAR_WIDTH + MARGIN : MARGIN;
     setPosition({
-      top: parsePosition(initialTop, true),
-      left: parsePosition(initialLeft, false),
+      top,
+      left: Math.max(left, minLeft),
     });
-  }, [windowSize.width, windowSize.height]);
+  }, [windowSize.width, windowSize.height, initialTop, initialLeft]);
 
   // Mettre à jour la ref de position à chaque changement
   useEffect(() => {
@@ -95,28 +121,31 @@ export default function Window({
   const isDraggingRef = useRef(false);
   const positionRef = useRef(position);
   const lastAnimationTimeRef = useRef(0);
+  const lastTouchEndRef = useRef(0);
 
-  // Constantes pour le calcul de hauteur maximale
+  // Constantes pour le calcul de hauteur maximale et limites
   const TASKBAR_HEIGHT = 52;
   const TITLEBAR_HEIGHT = 36;
-  const MARGIN = 8;
+  const isMobile = windowSize.width <= 768;
 
   // Constantes pour le momentum
   const FRICTION = 0.92; // Facteur de friction (plus proche de 1 = moins de friction)
   const MIN_VELOCITY = 0.5; // Vitesse minimale pour continuer l'animation
 
-  // Calculer la hauteur maximale en fonction de la position
+  // Calculer la hauteur maximale en fonction de la position (taskbar en bas sur desktop, à gauche sur mobile)
   const maxHeight = useMemo(() => {
     if (height) return null; // Si height est spécifiée, pas de limitation
-    
-    const availableHeight = windowSize.height - position.top - TASKBAR_HEIGHT - MARGIN;
+    const taskbarSpace = isMobile ? 0 : TASKBAR_HEIGHT;
+    const availableHeight = windowSize.height - position.top - taskbarSpace - MARGIN;
     return Math.max(200, availableHeight); // Minimum de 200px pour la hauteur
-  }, [position.top, height, windowSize.height]);
+  }, [position.top, height, windowSize.height, isMobile]);
 
   const onDrag = useCallback((e) => {
+    if (e.cancelable) e.preventDefault();
+    const { clientX, clientY } = getClientCoords(e);
     const now = Date.now();
-    const currentX = e.clientX - dragOffset.current.x;
-    const currentY = e.clientY - dragOffset.current.y;
+    const currentX = clientX - dragOffset.current.x;
+    const currentY = clientY - dragOffset.current.y;
 
     // Calculer la vélocité si on a une position précédente
     if (lastTimeRef.current > 0 && isDraggingRef.current) {
@@ -137,21 +166,18 @@ export default function Window({
 
     const minTop = MARGIN;
     const maxTop =
-      windowSize.height - TASKBAR_HEIGHT - TITLEBAR_HEIGHT - MARGIN;
+      windowSize.height - (isMobile ? 0 : TASKBAR_HEIGHT) - TITLEBAR_HEIGHT - MARGIN;
+    const minLeft = isMobile ? TASKBAR_WIDTH + MARGIN : MARGIN;
+    const maxLeft = windowSize.width - MARGIN - 200;
 
-    // On empêche la titleBar de passer sous la taskbar
     newTop = Math.min(Math.max(newTop, minTop), maxTop);
-
-    // Optionnel : empêcher de sortir trop à gauche / droite
-    const minLeft = MARGIN;
-    const maxLeft = windowSize.width - MARGIN - 200; // 200 = largeur minimale approximative
     newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
 
     setPosition({
       top: newTop,
       left: newLeft,
     });
-  }, [windowSize.height, windowSize.width]);
+  }, [windowSize.height, windowSize.width, isMobile]);
 
 
   // Fonction pour animer le momentum après le relâchement
@@ -189,8 +215,8 @@ export default function Window({
 
       const minTop = MARGIN;
       const maxTop =
-        windowSize.height - TASKBAR_HEIGHT - TITLEBAR_HEIGHT - MARGIN;
-      const minLeft = MARGIN;
+        windowSize.height - (isMobile ? 0 : TASKBAR_HEIGHT) - TITLEBAR_HEIGHT - MARGIN;
+      const minLeft = isMobile ? TASKBAR_WIDTH + MARGIN : MARGIN;
       const maxLeft = windowSize.width - MARGIN - 200;
 
       // Appliquer les limites et inverser la vélocité si on touche un bord
@@ -212,57 +238,70 @@ export default function Window({
 
     // Continuer l'animation
     animationFrameRef.current = requestAnimationFrame(animateMomentum);
-  }, [windowSize.height, windowSize.width]);
+  }, [windowSize.height, windowSize.width, isMobile]);
+
+  const stopDragRef = useRef(null);
+
+  const handleTouchEnd = useCallback(() => {
+    lastTouchEndRef.current = Date.now();
+    stopDragRef.current?.();
+  }, []);
 
   const stopDrag = useCallback(() => {
     window.removeEventListener("mousemove", onDrag);
     window.removeEventListener("mouseup", stopDrag);
-    
+    window.removeEventListener("touchmove", onDrag, { passive: false });
+    window.removeEventListener("touchend", handleTouchEnd);
+    window.removeEventListener("touchcancel", handleTouchEnd);
+
     isDraggingRef.current = false;
 
-    // Démarrer l'animation de momentum si la vélocité est suffisante
     const speed = Math.sqrt(
-      velocityRef.current.x * velocityRef.current.x + 
+      velocityRef.current.x * velocityRef.current.x +
       velocityRef.current.y * velocityRef.current.y
     );
-
     if (speed >= MIN_VELOCITY) {
       lastAnimationTimeRef.current = Date.now();
       animationFrameRef.current = requestAnimationFrame(animateMomentum);
     }
-  }, [onDrag, animateMomentum]);
+  }, [onDrag, animateMomentum, handleTouchEnd]);
+
+  stopDragRef.current = stopDrag;
 
   const startDrag = useCallback((e) => {
-    // Mettre la fenêtre au premier plan
+    if (!e.touches && lastTouchEndRef.current && Date.now() - lastTouchEndRef.current < 400) {
+      return;
+    }
+    e.preventDefault();
     onFocus && onFocus(id);
 
-    // Arrêter toute animation de momentum en cours
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
 
-    // Réinitialiser les références de vélocité
     velocityRef.current = { x: 0, y: 0 };
     lastTimeRef.current = Date.now();
     lastAnimationTimeRef.current = 0;
-    
+
+    const { clientX, clientY } = getClientCoords(e);
     const currentPosition = positionRef.current;
     lastPositionRef.current = {
-      x: e.clientX - dragOffset.current.x,
-      y: e.clientY - dragOffset.current.y,
+      x: clientX - dragOffset.current.x,
+      y: clientY - dragOffset.current.y,
     };
-    
     dragOffset.current = {
-      x: e.clientX - currentPosition.left,
-      y: e.clientY - currentPosition.top,
+      x: clientX - currentPosition.left,
+      y: clientY - currentPosition.top,
     };
-    
     isDraggingRef.current = true;
 
     window.addEventListener("mousemove", onDrag);
     window.addEventListener("mouseup", stopDrag);
-  }, [id, onFocus, onDrag, stopDrag]);
+    window.addEventListener("touchmove", onDrag, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("touchcancel", handleTouchEnd);
+  }, [id, onFocus, onDrag, stopDrag, handleTouchEnd]);
 
   // Nettoyer l'animation et les event listeners lors du démontage
   useEffect(() => {
@@ -270,11 +309,13 @@ export default function Window({
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      // Nettoyer les event listeners au cas où
       window.removeEventListener("mousemove", onDrag);
       window.removeEventListener("mouseup", stopDrag);
+      window.removeEventListener("touchmove", onDrag, { passive: false });
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchEnd);
     };
-  }, [onDrag, stopDrag]);
+  }, [onDrag, stopDrag, handleTouchEnd]);
 
   // Gestion de la fermeture avec animation
   function handleClose() {
@@ -311,10 +352,12 @@ export default function Window({
       style={style}
       data-window={id}
       onMouseDown={() => onFocus && onFocus(id)}
+      onTouchStart={() => onFocus && onFocus(id)}
     >
       <div
         className={styles.titleBar}
         onMouseDown={startDrag}
+        onTouchStart={startDrag}
       >
         <div className={styles.title}>{title}</div>
         <div className={styles.actions}>
