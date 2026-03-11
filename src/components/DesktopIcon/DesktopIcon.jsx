@@ -31,9 +31,19 @@ export default function DesktopIcon({
   const GRID_OFFSET_Y = gridConfig?.GRID_OFFSET_Y || DEFAULT_GRID_OFFSET_Y;
   const [isDragging, setIsDragging] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(position);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
   const hasDraggedRef = useRef(false);
   const iconRef = useRef(null);
+
+  // Détecter si on est sur un appareil tactile (mobile) pour ouvrir au simple tap
+  useEffect(() => {
+    const mq = window.matchMedia('(pointer: coarse)');
+    const handler = () => setIsTouchDevice(mq.matches);
+    handler(); // valeur initiale
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   // Mettre à jour la position locale quand la prop change
   useEffect(() => {
@@ -135,7 +145,7 @@ export default function DesktopIcon({
   }, [isDragging, onPositionChange, GRID_OFFSET_X, GRID_OFFSET_Y, GRID_SIZE_X, GRID_SIZE_Y]);
 
   const handleClick = (e) => {
-    // Ne pas sélectionner si on vient de finir un drag
+    // Ne pas réagir si on vient de finir un drag
     if (hasDraggedRef.current) {
       e.stopPropagation();
       hasDraggedRef.current = false;
@@ -143,7 +153,10 @@ export default function DesktopIcon({
     }
     
     e.stopPropagation();
-    if (onSelect) {
+    // Sur mobile/tactile : un seul tap ouvre l'app (comportement téléphone)
+    if (isTouchDevice && onOpen) {
+      onOpen();
+    } else if (onSelect) {
       onSelect();
     }
   };
