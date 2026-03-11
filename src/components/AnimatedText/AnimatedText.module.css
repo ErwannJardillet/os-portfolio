@@ -15,6 +15,14 @@
   word-break: keep-all;
 }
 
+/* Sur petits/étroits écrans : permettre le retour à la ligne pour éviter la troncation */
+@media (max-width: 600px) {
+  .word {
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
 .word.visible {
   opacity: 1;
 }

@@ -5,6 +5,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  min-width: 0;
 }
 
 .introduction .title {
@@ -19,8 +20,10 @@
 .introduction .section {
   flex: 1;
   overflow-y: auto;
+  overflow-x: auto;
   margin-bottom: 0;
   min-height: 0;
+  min-width: 0; /* Permet au flex de rétrécir correctement */
 }
 
 .introduction .section[data-section-id="titre"] {
@@ -28,17 +31,32 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  overflow-wrap: break-word;
 }
 
 .introduction .section[data-section-id="titre"] h1 {
   font-weight: 600;
-  font-size: 4em;
+  font-size: clamp(1.25rem, 6vmin, 4em);
   letter-spacing: -0.01em;
   margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
   color: var(--text-color);
+  text-align: center;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .introduction .section[data-section-id="titre"] p {
+}
+
+.introduction .section[data-section-id="titre"] .middleContent {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.introduction .section[data-section-id="titre"] .middleContent,
+.introduction .section[data-section-id="titre"] .middleContent * {
+  white-space: nowrap !important;
 }
 
 .introduction p {
@@ -53,7 +71,9 @@
   align-items: center;
   justify-content: center;
   width: 80%;
+  max-width: 100%;
 }
+
 
 .middleContentItem {
   height: 1px;
