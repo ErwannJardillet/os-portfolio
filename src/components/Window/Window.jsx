@@ -1,6 +1,15 @@
 // Window.jsx
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import styles from "./Window.module.css";
+import {
+  FRICTION,
+  BOUNCE_DAMPING,
+  MIN_VELOCITY,
+  TASKBAR_HEIGHT,
+  TASKBAR_WIDTH,
+  TITLEBAR_HEIGHT,
+  MARGIN,
+} from "../../constants";
 
 /** Récupère les coordonnées client (souris ou tactile) */
 function getClientCoords(e) {
@@ -73,8 +82,6 @@ export default function Window({
     return value;
   };
 
-  const TASKBAR_WIDTH = 52;
-  const MARGIN = 8;
 
   // Position locale de la fenêtre
   const [position, setPosition] = useState(() => {
@@ -123,14 +130,7 @@ export default function Window({
   const lastAnimationTimeRef = useRef(0);
   const lastTouchEndRef = useRef(0);
 
-  // Constantes pour le calcul de hauteur maximale et limites
-  const TASKBAR_HEIGHT = 52;
-  const TITLEBAR_HEIGHT = 36;
   const isMobile = windowSize.width <= 768;
-
-  // Constantes pour le momentum
-  const FRICTION = 0.92; // Facteur de friction (plus proche de 1 = moins de friction)
-  const MIN_VELOCITY = 0.5; // Vitesse minimale pour continuer l'animation
 
   // Calculer la hauteur maximale en fonction de la position (taskbar en bas sur desktop, à gauche sur mobile)
   const maxHeight = useMemo(() => {
@@ -222,12 +222,12 @@ export default function Window({
       // Appliquer les limites et inverser la vélocité si on touche un bord
       if (newTop <= minTop || newTop >= maxTop) {
         newTop = Math.min(Math.max(newTop, minTop), maxTop);
-        velocityRef.current.y *= -0.6; // Rebond avec perte d'énergie
+        velocityRef.current.y *= -BOUNCE_DAMPING;
       }
 
       if (newLeft <= minLeft || newLeft >= maxLeft) {
         newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
-        velocityRef.current.x *= -0.6; // Rebond avec perte d'énergie
+        velocityRef.current.x *= -BOUNCE_DAMPING;
       }
 
       return {

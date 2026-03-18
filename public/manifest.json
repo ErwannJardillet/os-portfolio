@@ -1,0 +1,16 @@
+{
+  "name": "Portfolio OS",
+  "short_name": "Portfolio",
+  "description": "Portfolio interactif au style système d'exploitation de bureau",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e0e16",
+  "theme_color": "#5606ff",
+  "icons": [
+    {
+      "src": "/icons/favIcon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

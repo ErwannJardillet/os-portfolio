@@ -4,6 +4,7 @@ import Taskbar from "../Taskbar/Taskbar";
 import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
 import DesktopIcon from "../DesktopIcon/DesktopIcon";
 import AudioPlayer from "../AudioPlayer/AudioPlayer";
+import { checkCollision } from "../../utils/collision";
 
 const WallpaperShaderGradient = lazy(() => import("../Wallpaper/WallpaperShaderGradient.jsx"));
 const About = lazy(() => import("../../apps/About/About"));
@@ -158,37 +159,6 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
     return Math.max(minHeight, Math.min(maxHeight, vwHeight));
   }, [windowSize.height]);
 
-  // Vérifie si deux positions se chevauchent réellement
-  // Permet le placement vertical (au-dessus/en dessous) tant qu'il n'y a pas de chevauchement vertical
-  function checkCollision(pos1, pos2) {
-    // Calculer les rectangles des deux icônes
-    const rect1 = {
-      left: pos1.x,
-      right: pos1.x + ICON_WIDTH,
-      top: pos1.y,
-      bottom: pos1.y + ICON_HEIGHT
-    };
-    
-    const rect2 = {
-      left: pos2.x,
-      right: pos2.x + ICON_WIDTH,
-      top: pos2.y,
-      bottom: pos2.y + ICON_HEIGHT
-    };
-    
-    // Vérifier le chevauchement horizontal (les rectangles se chevauchent horizontalement)
-    // Utiliser < strict pour exclure les cas où les rectangles sont juste adjacents
-    const horizontalOverlap = rect1.right > rect2.left && rect1.left < rect2.right;
-    
-    // Vérifier le chevauchement vertical (les rectangles se chevauchent verticalement)
-    // Utiliser < strict pour exclure les cas où les rectangles sont juste adjacents
-    const verticalOverlap = rect1.bottom > rect2.top && rect1.top < rect2.bottom;
-    
-    // Collision seulement si les deux se chevauchent (horizontal ET vertical)
-    // Cela permet le placement vertical (même colonne) tant qu'il n'y a pas de chevauchement vertical
-    return horizontalOverlap && verticalOverlap;
-  }
-
   // Trouve la position la plus proche sans collision
   function findNearestFreePosition(targetPosition, allPositions, currentId) {
     const GRID_SIZE_X = gridConfig.GRID_SIZE_X;
@@ -199,7 +169,7 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
     
     // Vérifier d'abord si la position cible est libre
     const hasCollision = Object.entries(allPositions).some(
-      ([id, pos]) => id !== currentId && checkCollision(targetPosition, pos)
+      ([id, pos]) => id !== currentId && checkCollision(targetPosition, pos, ICON_WIDTH, ICON_HEIGHT)
     );
     
     if (!hasCollision) {
@@ -228,7 +198,7 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
         const testPosition = { x: clampedX, y: clampedY };
         
         const hasTestCollision = Object.entries(allPositions).some(
-          ([id, pos]) => id !== currentId && checkCollision(testPosition, pos)
+          ([id, pos]) => id !== currentId && checkCollision(testPosition, pos, ICON_WIDTH, ICON_HEIGHT)
         );
         
         if (!hasTestCollision) {

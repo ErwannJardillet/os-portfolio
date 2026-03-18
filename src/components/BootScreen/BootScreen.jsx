@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "./BootScreen.module.css";
+import { BOOT_DURATION } from "../../constants";
 
 const BOOT_MESSAGES = [
   "Initializing system...",
@@ -7,8 +8,6 @@ const BOOT_MESSAGES = [
   "Starting desktop environment...",
   "Ready"
 ];
-
-const BOOT_DURATION = 4500; // 4.5 secondes
 const MESSAGE_INTERVAL = BOOT_DURATION / BOOT_MESSAGES.length;
 
 export default function BootScreen({ onBootComplete }) {

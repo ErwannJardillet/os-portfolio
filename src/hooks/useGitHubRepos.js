@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
+import {
+  GITHUB_REST_API_URL,
+  GITHUB_GRAPHQL_API_URL,
+  REPO_TO_EXCLUDE,
+  FALLBACK_REPOS,
+} from "../constants";
 
-const GITHUB_REST_API_URL = "https://api.github.com";
-const GITHUB_GRAPHQL_API_URL = "https://api.github.com/graphql";
-const REPO_TO_EXCLUDE = "os-portfolio";
+// En production (Vercel), le hook appelle /api/github qui proxifie l'API GitHub
+// avec le token côté serveur (jamais exposé au client).
+// En développement, il appelle l'API GitHub directement.
+const USE_PROXY = import.meta.env.PROD;
 
 /**
  * Hook personnalisé pour récupérer les repos GitHub
@@ -19,6 +26,15 @@ export function useGitHubRepos() {
       try {
         setLoading(true);
         setError(null);
+
+        // En production, déléguer au proxy serverless (token non exposé)
+        if (USE_PROXY) {
+          const response = await fetch("/api/github");
+          if (!response.ok) throw new Error(`Proxy GitHub: ${response.status}`);
+          const data = await response.json();
+          setRepos(data);
+          return;
+        }
 
         // Récupérer le nom d'utilisateur depuis les variables d'environnement
         const username = import.meta.env.VITE_GITHUB_USERNAME;
@@ -241,8 +257,8 @@ export function useGitHubRepos() {
 
         setRepos(validatedRepos);
       } catch (err) {
-        console.error("Erreur lors de la récupération des repos GitHub:", err);
-        setError(err.message || "Une erreur est survenue");
+        console.warn("API GitHub indisponible, affichage des projets en fallback:", err.message);
+        setRepos(FALLBACK_REPOS);
       } finally {
         setLoading(false);
       }
