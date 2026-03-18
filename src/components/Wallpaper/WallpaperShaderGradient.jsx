@@ -9,25 +9,6 @@ import { ShaderGradientCanvas, ShaderGradient } from "@shadergradient/react";
 
 
 export default function WallpaperShaderGradient({
-  // Mesh
-  type = "plane",
-  animate = "on",
-  uSpeed = 0.25,
-  uStrength = 3.2,
-  uFrequency = 4.8,
-  // Colors (évite le duo violet/bleu par défaut)
-  color1 = "#52ff89",
-  color2 = "#dbba95",
-  color3 = "#d0bce1",
-  // Light / feel
-  lightType = "3d",
-  brightness = 1.0,
-  grain = "on",
-  grainBlending = 0.35,
-  // Camera
-  cDistance = 3.6,
-  cPolarAngle = 90,
-  cAzimuthAngle = 0,
   // Canvas perf
   pixelDensity = 1.25,
   fov = 45,

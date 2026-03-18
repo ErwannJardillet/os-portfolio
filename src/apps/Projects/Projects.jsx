@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import styles from "./Projects.module.css";
 import { useGitHubRepos } from "../../hooks/useGitHubRepos";
 import AnimatedText from "../../components/AnimatedText/AnimatedText";
@@ -9,13 +9,6 @@ export default function Projects() {
 
   const safeActiveTab = repos.length > 0 ? Math.min(activeTab, repos.length - 1) : 0;
   const currentRepo = repos.length > 0 ? repos[safeActiveTab] : null;
-
-  // Réinitialiser l'onglet actif si nécessaire
-  useEffect(() => {
-    if (repos.length > 0 && activeTab >= repos.length) {
-      setActiveTab(0);
-    }
-  }, [repos.length, activeTab]);
 
   // Formatage de la date
   const formatDate = (dateString) => {
@@ -110,11 +103,11 @@ export default function Projects() {
             <button
               key={repo.name}
               className={`${styles.tab} ${
-                index === activeTab ? styles.tabActive : ""
+                index === safeActiveTab ? styles.tabActive : ""
               }`}
               onClick={() => setActiveTab(index)}
               aria-label={`Onglet ${repo.name}`}
-              aria-selected={index === activeTab}
+              aria-selected={index === safeActiveTab}
             >
               {repo.name}
             </button>

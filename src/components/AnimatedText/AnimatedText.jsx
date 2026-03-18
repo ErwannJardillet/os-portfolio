@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, Children, cloneElement, isValidElement } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, Children, cloneElement, isValidElement } from "react";
 import styles from "./AnimatedText.module.css";
 
 /**
@@ -6,26 +6,25 @@ import styles from "./AnimatedText.module.css";
  * @param {React.ReactNode} children - Le contenu JSX à animer
  * @param {string} animationKey - Une clé pour forcer la réanimation lors du changement de contenu
  */
+function extractTextContent(node) {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractTextContent).join("");
+  }
+  if (isValidElement(node)) {
+    return extractTextContent(node.props?.children);
+  }
+  return "";
+}
+
 export default function AnimatedText({ children, animationKey }) {
   const [visibleWords, setVisibleWords] = useState(new Set());
   const containerRef = useRef(null);
-  const wordKeysRef = useMemo(() => new Map(), []);
+  const wordKeysRef = useRef(new Map());
   const lastAnimatedHashRef = useRef(null);
   const timeoutRef = useRef(null);
-
-  // Fonction pour extraire récursivement le texte des children
-  const extractTextContent = (node) => {
-    if (typeof node === "string" || typeof node === "number") {
-      return String(node);
-    }
-    if (Array.isArray(node)) {
-      return node.map(extractTextContent).join("");
-    }
-    if (isValidElement(node)) {
-      return extractTextContent(node.props?.children);
-    }
-    return "";
-  };
 
   // Créer un hash stable basé sur animationKey + contenu texte réel
   const contentHash = useMemo(() => {
@@ -34,7 +33,7 @@ export default function AnimatedText({ children, animationKey }) {
   }, [children, animationKey]);
 
   // Fonction récursive pour traiter les enfants et remplacer le texte par des mots individuels
-  const processChildren = (children, parentKey = "root") => {
+  const processChildren = useCallback((children, parentKey = "root") => {
     return Children.map(children, (child, index) => {
       const key = `${parentKey}-${index}`;
 
@@ -61,7 +60,7 @@ export default function AnimatedText({ children, animationKey }) {
           }
           
           // Pour les mots, les envelopper dans un span animable
-          wordKeysRef.set(wordKey, true);
+          wordKeysRef.current.set(wordKey, true);
           return (
             <span 
               key={wordKey} 
@@ -93,12 +92,13 @@ export default function AnimatedText({ children, animationKey }) {
 
       return child;
     });
-  };
+  }, []);
 
   const processedContent = useMemo(() => {
-    wordKeysRef.clear();
+    wordKeysRef.current.clear();
     return processChildren(children);
-  }, [children, animationKey]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [children, animationKey, processChildren]);
 
   // Réinitialiser l'animation seulement quand le contenu change vraiment
   // Utiliser processedContent comme dépendance pour s'assurer que wordKeysRef est rempli
@@ -115,7 +115,7 @@ export default function AnimatedText({ children, animationKey }) {
       lastAnimatedHashRef.current = contentHash;
       setVisibleWords(new Set());
 
-      const wordKeys = Array.from(wordKeysRef.keys());
+      const wordKeys = Array.from(wordKeysRef.current.keys());
 
       if (wordKeys.length === 0) {
         return;

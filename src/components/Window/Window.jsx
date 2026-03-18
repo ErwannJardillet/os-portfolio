@@ -97,6 +97,8 @@ export default function Window({
     return { top, left: Math.max(left, minLeft) };
   });
 
+  const hasBeenDraggedRef = useRef(false);
+
   // Recalculer la position quand la taille de l'écran change
   useEffect(() => {
     if (hasBeenDraggedRef.current) return; // Ne pas reset si la fenêtre a été déplacée
@@ -104,10 +106,11 @@ export default function Window({
     const top = parsePosition(initialTop, true);
     const mobile = windowSize.width <= 768;
     const minLeft = mobile ? TASKBAR_WIDTH + MARGIN : MARGIN;
-    setPosition({
-      top,
-      left: Math.max(left, minLeft),
-    });
+    const id = setTimeout(() => {
+      setPosition({ top, left: Math.max(left, minLeft) });
+    }, 0);
+    return () => clearTimeout(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowSize.width, windowSize.height, initialTop, initialLeft]);
 
   // Mettre à jour la ref de position à chaque changement
@@ -126,8 +129,8 @@ export default function Window({
   const lastPositionRef = useRef({ x: 0, y: 0 });
   const lastTimeRef = useRef(0);
   const animationFrameRef = useRef(null);
+  const animateMomentumRef = useRef(null);
   const isDraggingRef = useRef(false);
-  const hasBeenDraggedRef = useRef(false);
   const positionRef = useRef(position);
   const lastAnimationTimeRef = useRef(0);
   const lastTouchEndRef = useRef(0);
@@ -242,8 +245,12 @@ export default function Window({
     });
 
     // Continuer l'animation
-    animationFrameRef.current = requestAnimationFrame(animateMomentum);
+    animationFrameRef.current = requestAnimationFrame(() => animateMomentumRef.current?.());
   }, [windowSize.height, windowSize.width, isMobile]);
+
+  useEffect(() => {
+    animateMomentumRef.current = animateMomentum;
+  }, [animateMomentum]);
 
   const stopDragRef = useRef(null);
 
@@ -254,7 +261,7 @@ export default function Window({
 
   const stopDrag = useCallback(() => {
     window.removeEventListener("mousemove", onDrag);
-    window.removeEventListener("mouseup", stopDrag);
+    window.removeEventListener("mouseup", stopDragRef.current);
     window.removeEventListener("touchmove", onDrag, { passive: false });
     window.removeEventListener("touchend", handleTouchEnd);
     window.removeEventListener("touchcancel", handleTouchEnd);
@@ -271,7 +278,9 @@ export default function Window({
     }
   }, [onDrag, animateMomentum, handleTouchEnd]);
 
-  stopDragRef.current = stopDrag;
+  useEffect(() => {
+    stopDragRef.current = stopDrag;
+  }, [stopDrag]);
 
   const startDrag = useCallback((e) => {
     if (!e.touches && lastTouchEndRef.current && Date.now() - lastTouchEndRef.current < 400) {

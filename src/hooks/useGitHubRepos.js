@@ -193,7 +193,7 @@ export function useGitHubRepos() {
                     const topicsData = await topicsResponse.json();
                     topics = topicsData.names || [];
                   }
-                } catch (e) {
+                } catch {
                   // Ignorer les erreurs de topics
                 }
               }

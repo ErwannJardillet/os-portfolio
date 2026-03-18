@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 const AudioContext = createContext(null);
@@ -10,6 +11,9 @@ export function AudioProvider({ children }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   
+  const [analyser, setAnalyserState] = useState(null);
+  const [audioContextObj, setAudioContextObj] = useState(null);
+
   const audioContextRef = useRef(null);
   const audioElementRef = useRef(null);
   const analyserRef = useRef(null);
@@ -23,6 +27,7 @@ export function AudioProvider({ children }) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         const ctx = new AudioContextClass();
         audioContextRef.current = ctx;
+        setAudioContextObj(ctx);
 
         // Créer l'élément audio
         const audio = new Audio();
@@ -35,6 +40,7 @@ export function AudioProvider({ children }) {
         analyser.fftSize = 2048; // Plus de détails pour une meilleure visualisation
         analyser.smoothingTimeConstant = 0.05; // Plus réactif (0.3 au lieu de 0.8)
         analyserRef.current = analyser;
+        setAnalyserState(analyser);
 
         // Créer le gain node pour le volume
         const gainNode = ctx.createGain();
@@ -61,7 +67,7 @@ export function AudioProvider({ children }) {
             });
             fileLoaded = true;
             break;
-          } catch (e) {
+          } catch {
             console.log(`Fichier ${file} non trouvé, essai suivant...`);
           }
         }
@@ -85,6 +91,7 @@ export function AudioProvider({ children }) {
         audioContextRef.current = null;
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -139,8 +146,8 @@ export function AudioProvider({ children }) {
     volume,
     isPlaying,
     isMuted,
-    analyser: analyserRef.current,
-    audioContext: audioContextRef.current,
+    analyser,
+    audioContext: audioContextObj,
     setVolume: setVolumeValue,
     toggleMute,
     play,

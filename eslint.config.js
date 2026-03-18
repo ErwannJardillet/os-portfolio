@@ -9,6 +9,12 @@ export default [
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite,
   {
+    files: ['api/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,

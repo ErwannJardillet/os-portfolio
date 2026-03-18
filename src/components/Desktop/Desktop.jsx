@@ -114,31 +114,32 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
 
   // Mettre à jour les positions des icônes quand la grille change
   useEffect(() => {
-    setIconPositions(prev => {
-      const offsetY = gridConfig.GRID_OFFSET_Y;
-      const gridY = gridConfig.GRID_SIZE_Y;
-      const offsetX = gridConfig.GRID_OFFSET_X;
-      
-      // Préserver les positions relatives si possible
-      return {
-        about: { 
-          x: Math.round((prev.about.x - gridConfig.GRID_OFFSET_X) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
-          y: Math.round((prev.about.y - offsetY) / gridY) * gridY + offsetY
-        },
-        projects: { 
-          x: Math.round((prev.projects.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
-          y: Math.round((prev.projects.y - offsetY) / gridY) * gridY + offsetY
-        },
-        contact: { 
-          x: Math.round((prev.contact.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
-          y: Math.round((prev.contact.y - offsetY) / gridY) * gridY + offsetY
-        },
-        skills: { 
-          x: Math.round((prev.skills.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
-          y: Math.round((prev.skills.y - offsetY) / gridY) * gridY + offsetY
-        }
-      };
-    });
+    const id = setTimeout(() => {
+      setIconPositions(prev => {
+        const offsetY = gridConfig.GRID_OFFSET_Y;
+        const gridY = gridConfig.GRID_SIZE_Y;
+        const offsetX = gridConfig.GRID_OFFSET_X;
+        return {
+          about: {
+            x: Math.round((prev.about.x - gridConfig.GRID_OFFSET_X) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+            y: Math.round((prev.about.y - offsetY) / gridY) * gridY + offsetY,
+          },
+          projects: {
+            x: Math.round((prev.projects.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+            y: Math.round((prev.projects.y - offsetY) / gridY) * gridY + offsetY,
+          },
+          contact: {
+            x: Math.round((prev.contact.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+            y: Math.round((prev.contact.y - offsetY) / gridY) * gridY + offsetY,
+          },
+          skills: {
+            x: Math.round((prev.skills.x - offsetX) / gridConfig.GRID_SIZE_X) * gridConfig.GRID_SIZE_X + offsetX,
+            y: Math.round((prev.skills.y - offsetY) / gridY) * gridY + offsetY,
+          },
+        };
+      });
+    }, 0);
+    return () => clearTimeout(id);
   }, [gridConfig.GRID_SIZE_X, gridConfig.GRID_SIZE_Y, gridConfig.GRID_OFFSET_X, gridConfig.GRID_OFFSET_Y]);
 
   // Constantes adaptatives pour la détection de collision
@@ -262,13 +263,12 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
 
   // Ouvrir automatiquement la fenêtre d'introduction
   useEffect(() => {
-    if (shouldOpenIntroduction && !introductionOpenedRef.current) {
-      introductionOpenedRef.current = true;
+    if (!shouldOpenIntroduction || introductionOpenedRef.current) return;
+    introductionOpenedRef.current = true;
+    const id = setTimeout(() => {
       setWindows((prev) => {
         const exists = prev.find(w => w.id === "introduction");
-        if (exists) {
-          return prev;
-        }
+        if (exists) return prev;
         const maxZ = Math.max(...prev.map(w => w.zIndex), 100);
         return [
           ...prev,
@@ -284,7 +284,9 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
           }
         ];
       });
-    }
+    }, 0);
+    return () => clearTimeout(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldOpenIntroduction]);
 
 
