@@ -14,7 +14,6 @@
     -webkit-backdrop-filter: blur(18px);
     border: 1px solid rgba(255, 255, 255, 0.08);
 
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -52,7 +51,7 @@
 /* À compléter pour le titre et les actions */
 .title {
     
-  font-family: "Doto", sans-serif;font-family: "Doto", sans-serif;
+  font-family: "Doto", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
   font-weight: 900;
@@ -94,7 +93,7 @@
 /* Styles pour les titres dans le contenu */
 .content h3 {
   
-  font-family: "Doto", sans-serif;font-family: "Doto", sans-serif;
+  font-family: "Doto", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
   font-weight: 100;
@@ -107,7 +106,7 @@
 
 .content h2 {
   
-  font-family: "Doto", sans-serif;font-family: "Doto", sans-serif;
+  font-family: "Doto", sans-serif;
   font-weight: 10;
   font-variation-settings:
     "ROND" 0;
@@ -144,7 +143,7 @@
 .closeButton {
     width: 24px;
     height: 24px;
-    margin: 18px;
+    margin: 0;
     border: none;
     background: transparent;
     cursor: pointer;

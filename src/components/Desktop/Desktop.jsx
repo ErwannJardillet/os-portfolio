@@ -232,7 +232,7 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
     setWindows((prev) => {
       if (prev.length === 0) return prev;
       
-      const maxZ = Math.max(...prev.map(w => w.zIndex), 0); // trouve le plus haut z-index actuel
+      const maxZ = Math.max(...prev.map(w => w.zIndex), 100); // trouve le plus haut z-index actuel
 
       return prev.map((w) =>
         w.id === id
@@ -251,7 +251,7 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
         return prev;
       }
 
-      const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
+      const maxZ = Math.max(...prev.map(w => w.zIndex), 100);
 
       return [
         ...prev,
@@ -269,7 +269,7 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
         if (exists) {
           return prev;
         }
-        const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
+        const maxZ = Math.max(...prev.map(w => w.zIndex), 100);
         return [
           ...prev,
           {

@@ -69,7 +69,7 @@ export default function Window({
       if (value.includes('%')) {
         const percent = parseFloat(value);
         const dimension = isHeight ? windowSize.height : windowSize.width;
-        return `${(dimension * percent) / 75}px`;
+        return `${(dimension * percent) / 100}px`;
       }
       // Si c'est déjà en px ou autre unité, le retourner tel quel
       return value;
@@ -99,6 +99,7 @@ export default function Window({
 
   // Recalculer la position quand la taille de l'écran change
   useEffect(() => {
+    if (hasBeenDraggedRef.current) return; // Ne pas reset si la fenêtre a été déplacée
     const left = parsePosition(initialLeft, false);
     const top = parsePosition(initialTop, true);
     const mobile = windowSize.width <= 768;
@@ -126,6 +127,7 @@ export default function Window({
   const lastTimeRef = useRef(0);
   const animationFrameRef = useRef(null);
   const isDraggingRef = useRef(false);
+  const hasBeenDraggedRef = useRef(false);
   const positionRef = useRef(position);
   const lastAnimationTimeRef = useRef(0);
   const lastTouchEndRef = useRef(0);
@@ -168,11 +170,13 @@ export default function Window({
     const maxTop =
       windowSize.height - (isMobile ? 0 : TASKBAR_HEIGHT) - TITLEBAR_HEIGHT - MARGIN;
     const minLeft = isMobile ? TASKBAR_WIDTH + MARGIN : MARGIN;
-    const maxLeft = windowSize.width - MARGIN - 200;
+    const minWindowWidth = isMobile ? 280 : 420;
+    const maxLeft = windowSize.width - MARGIN - minWindowWidth;
 
     newTop = Math.min(Math.max(newTop, minTop), maxTop);
     newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
 
+    hasBeenDraggedRef.current = true;
     setPosition({
       top: newTop,
       left: newLeft,
@@ -217,7 +221,8 @@ export default function Window({
       const maxTop =
         windowSize.height - (isMobile ? 0 : TASKBAR_HEIGHT) - TITLEBAR_HEIGHT - MARGIN;
       const minLeft = isMobile ? TASKBAR_WIDTH + MARGIN : MARGIN;
-      const maxLeft = windowSize.width - MARGIN - 200;
+      const minWindowWidth = isMobile ? 280 : 420;
+      const maxLeft = windowSize.width - MARGIN - minWindowWidth;
 
       // Appliquer les limites et inverser la vélocité si on touche un bord
       if (newTop <= minTop || newTop >= maxTop) {
