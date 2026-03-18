@@ -7,21 +7,8 @@ export default function Projects() {
   const { repos, loading, error } = useGitHubRepos();
   const [activeTab, setActiveTab] = useState(0);
 
-  // #region agent log
-  useEffect(() => {
-    fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Projects.jsx:7',message:'Projects component render',data:{activeTab,reposCount:repos.length,loading,hasError:!!error,errorMessage:error,firstRepo:repos[0]?{name:repos[0].name,hasUrl:!!repos[0].url}:null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  });
-
-  // Calculer safeActiveTab et currentRepo AVANT les retours conditionnels pour les logs
   const safeActiveTab = repos.length > 0 ? Math.min(activeTab, repos.length - 1) : 0;
   const currentRepo = repos.length > 0 ? repos[safeActiveTab] : null;
-
-  useEffect(() => {
-    if (currentRepo) {
-      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Projects.jsx:98',message:'currentRepo check',data:{safeActiveTab,hasCurrentRepo:!!currentRepo,currentRepoName:currentRepo?.name,reposLength:repos.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    }
-  }, [currentRepo, safeActiveTab, repos.length]);
-  // #endregion
 
   // Réinitialiser l'onglet actif si nécessaire
   useEffect(() => {

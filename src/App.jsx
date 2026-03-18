@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import Desktop from "./components/Desktop/Desktop.jsx";
 import BootScreen from "./components/BootScreen/BootScreen.jsx";
+import MobileView from "./components/MobileView/MobileView.jsx";
 import { AudioProvider } from "./contexts/AudioContext";
+import { useIsMobile } from "./hooks/useIsMobile";
 import "./App.css";
 
 export default function App() {
+    const isMobile = useIsMobile();
     const [isBooting, setIsBooting] = useState(true);
     const [shouldOpenIntroduction, setShouldOpenIntroduction] = useState(false);
 
@@ -17,7 +20,7 @@ export default function App() {
         if (!isBooting) {
             const timer = setTimeout(() => {
                 setShouldOpenIntroduction(true);
-            }, 2000); // 2 secondes
+            }, 2000);
 
             return () => clearTimeout(timer);
         }
@@ -27,7 +30,10 @@ export default function App() {
         <AudioProvider>
             {isBooting && <BootScreen onBootComplete={handleBootComplete} />}
             <div className={isBooting ? "desktop-hidden" : "desktop-visible"}>
-                <Desktop shouldOpenIntroduction={shouldOpenIntroduction} />
+                {isMobile
+                    ? <MobileView />
+                    : <Desktop shouldOpenIntroduction={shouldOpenIntroduction} />
+                }
             </div>
         </AudioProvider>
     );

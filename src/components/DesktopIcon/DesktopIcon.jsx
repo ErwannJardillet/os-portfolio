@@ -168,6 +168,13 @@ export default function DesktopIcon({
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onOpen?.();
+    }
+  };
+
   return (
     <div
       ref={iconRef}
@@ -177,10 +184,14 @@ export default function DesktopIcon({
         left: `${currentPosition.x}px`,
         top: `${currentPosition.y}px`
       }}
+      tabIndex={0}
+      role="button"
+      aria-label={label}
       onMouseDown={handlePointerDown}
       onTouchStart={handlePointerDown}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
+      onKeyDown={handleKeyDown}
     >
       <div className={`${styles.iconImage} ${iconImage ? styles.hasImage : ''}`}>
         {iconImage ? (

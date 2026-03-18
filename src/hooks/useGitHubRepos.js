@@ -20,17 +20,9 @@ export function useGitHubRepos() {
         setLoading(true);
         setError(null);
 
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:18',message:'fetchRepos started',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
-
         // Récupérer le nom d'utilisateur depuis les variables d'environnement
         const username = import.meta.env.VITE_GITHUB_USERNAME;
         const token = import.meta.env.VITE_GITHUB_TOKEN;
-
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:25',message:'env vars check',data:{hasUsername:!!username,usernameLength:username?.length||0,hasToken:!!token,tokenLength:token?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
 
         if (!username) {
           throw new Error(
@@ -40,10 +32,6 @@ export function useGitHubRepos() {
 
         // Vérifier si on a un token valide pour utiliser GraphQL
         const hasValidToken = token && token !== "votre_token_github" && token.trim() !== "";
-
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:34',message:'token validation',data:{hasValidToken},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
 
         let formattedRepos = [];
 
@@ -136,18 +124,10 @@ export function useGitHubRepos() {
             };
 
             // Récupérer les repos publics (triés par popularité)
-            // #region agent log
-            fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:127',message:'REST API fetch start',data:{url:`${GITHUB_REST_API_URL}/users/${username}/repos?sort=stars&per_page=6&type=public`},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
-
             const reposResponse = await fetch(
               `${GITHUB_REST_API_URL}/users/${username}/repos?sort=stars&per_page=6&type=public`,
               { headers }
             );
-
-            // #region agent log
-            fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:132',message:'REST API response',data:{ok:reposResponse.ok,status:reposResponse.status,statusText:reposResponse.statusText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
 
             if (!reposResponse.ok) {
               const errorText = await reposResponse.text().catch(() => "");
@@ -162,11 +142,7 @@ export function useGitHubRepos() {
             }
 
             const reposData = await reposResponse.json();
-            
-            // #region agent log
-            fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:144',message:'REST API data received',data:{isArray:Array.isArray(reposData),reposCount:Array.isArray(reposData)?reposData.length:0,firstRepoName:Array.isArray(reposData)&&reposData[0]?reposData[0].name:null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
-            
+
             if (!Array.isArray(reposData)) {
               throw new Error("La réponse de l'API GitHub n'est pas un tableau valide");
             }
@@ -175,10 +151,6 @@ export function useGitHubRepos() {
           const filteredRepos = reposData
             .filter((repo) => repo.name !== REPO_TO_EXCLUDE)
             .slice(0, 6);
-
-          // #region agent log
-          fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:152',message:'filtered repos',data:{filteredCount:filteredRepos.length,repoNames:filteredRepos.map(r=>r.name)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
 
           // Récupérer les langages et topics pour chaque repo
           formattedRepos = await Promise.all(
@@ -267,21 +239,11 @@ export function useGitHubRepos() {
           topics: Array.isArray(repo.topics) ? repo.topics : [],
         }));
 
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:242',message:'before setRepos',data:{validatedReposCount:validatedRepos.length,firstRepo:validatedRepos[0]?{name:validatedRepos[0].name,hasUrl:!!validatedRepos[0].url,hasDescription:!!validatedRepos[0].description,languagesCount:validatedRepos[0]?.languages?.length||0}:null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
-
         setRepos(validatedRepos);
       } catch (err) {
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:243',message:'error caught',data:{errorMessage:err.message,errorName:err.name,errorStack:err.stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         console.error("Erreur lors de la récupération des repos GitHub:", err);
         setError(err.message || "Une erreur est survenue");
       } finally {
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useGitHubRepos.js:247',message:'finally block',data:{loading:false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         setLoading(false);
       }
     };

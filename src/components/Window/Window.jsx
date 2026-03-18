@@ -351,8 +351,10 @@ export default function Window({
       className={`${styles.window} ${isClosing ? styles.closing : ''}`}
       style={style}
       data-window={id}
-      onMouseDown={() => onFocus && onFocus(id)}
-      onTouchStart={() => onFocus && onFocus(id)}
+      tabIndex={-1}
+      onMouseDown={(e) => { onFocus && onFocus(id); e.currentTarget.focus(); }}
+      onTouchStart={(e) => { onFocus && onFocus(id); e.currentTarget.focus(); }}
+      onKeyDown={(e) => { if (e.key === 'Escape') handleClose(); }}
     >
       <div
         className={styles.titleBar}

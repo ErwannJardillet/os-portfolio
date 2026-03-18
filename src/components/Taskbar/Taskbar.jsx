@@ -6,16 +6,36 @@ import VolumeControl from "../VolumeControl/VolumeControl";
 
 
 export default function Taskbar() {
-  const batteryLevel = 78; // en pourcentage
   const [now, setNow] = useState(new Date());
+  const [batteryLevel, setBatteryLevel] = useState(null);
+  const [isCharging, setIsCharging] = useState(false);
   const time = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   const dateDay = now.toLocaleDateString("fr-FR", { weekday: "short" });
   const dateRest = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
 
-
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (!('getBattery' in navigator)) return;
+    let battery;
+    const updateLevel = () => setBatteryLevel(Math.round(battery.level * 100));
+    const updateCharging = () => setIsCharging(battery.charging);
+    navigator.getBattery().then((b) => {
+      battery = b;
+      updateLevel();
+      updateCharging();
+      b.addEventListener('levelchange', updateLevel);
+      b.addEventListener('chargingchange', updateCharging);
+    });
+    return () => {
+      if (battery) {
+        battery.removeEventListener('levelchange', updateLevel);
+        battery.removeEventListener('chargingchange', updateCharging);
+      }
+    };
   }, []);
 
   return (
@@ -41,17 +61,26 @@ export default function Taskbar() {
         <div className={styles.divider}></div>
         <div className={`${styles.systemItem} ${styles.timeItem}`}>{time}</div>
 
-        <div className={styles.systemItem}>
-          <div className={styles.battery}>
-            <div className={styles.batteryBody}>
-              <div
-                className={styles.batteryLevel}
-                style={{ width: `${batteryLevel}%` }}
-              />
+        {batteryLevel !== null && (
+          <div className={styles.systemItem}>
+            <div className={styles.battery}>
+              <div className={styles.batteryBody}>
+                <div
+                  className={styles.batteryLevel}
+                  style={{
+                    width: `${batteryLevel}%`,
+                    background: batteryLevel <= 20
+                      ? 'linear-gradient(to right, #ff4b4b, #ff8a4b)'
+                      : isCharging
+                      ? 'linear-gradient(to right, #4bf0ff, #4baaff)'
+                      : undefined,
+                  }}
+                />
+              </div>
+              <div className={styles.batteryTip} />
             </div>
-            <div className={styles.batteryTip} />
           </div>
-        </div>
+        )}
 
         <div className={styles.divider}></div>
 

@@ -1,15 +1,16 @@
 import styles from "./Desktop.module.css";
 import Window from "../Window/Window";
 import Taskbar from "../Taskbar/Taskbar";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
 import DesktopIcon from "../DesktopIcon/DesktopIcon";
-import About from "../../apps/About/About";
-import Contact from "../../apps/Contact/Contact";
-import Projects from "../../apps/Projects/Projects";
-import Skills from "../../apps/Skills/Skills";
-import Introduction from "../../apps/Introduction/Introduction";
-import WallpaperShaderGradient from "../Wallpaper/WallpaperShaderGradient.jsx";
 import AudioPlayer from "../AudioPlayer/AudioPlayer";
+
+const WallpaperShaderGradient = lazy(() => import("../Wallpaper/WallpaperShaderGradient.jsx"));
+const About = lazy(() => import("../../apps/About/About"));
+const Contact = lazy(() => import("../../apps/Contact/Contact"));
+const Projects = lazy(() => import("../../apps/Projects/Projects"));
+const Skills = lazy(() => import("../../apps/Skills/Skills"));
+const Introduction = lazy(() => import("../../apps/Introduction/Introduction"));
 
 // Mapping des composants pour éviter les if/else
 const componentMap = {
@@ -330,7 +331,9 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
         }
       }}
     >
-      <WallpaperShaderGradient />
+      <Suspense fallback={null}>
+        <WallpaperShaderGradient />
+      </Suspense>
 
       <div className={styles.iconsArea}>
         <DesktopIcon
@@ -444,7 +447,9 @@ export default function Desktop({ shouldOpenIntroduction = false }) {
             onFocus={handleFocus}
             zIndex={win.zIndex}
           >
-            {Component ? <Component /> : <p>{win.content}</p>}
+            <Suspense fallback={null}>
+              {Component ? <Component /> : <p>{win.content}</p>}
+            </Suspense>
           </Window>
         );
       })}

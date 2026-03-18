@@ -33,10 +33,6 @@ export default function AnimatedText({ children, animationKey }) {
     return `${animationKey || ''}-${currentTextContent}`;
   }, [children, animationKey]);
 
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:9',message:'Component render',data:{animationKey,contentHash,lastAnimatedHash:lastAnimatedHashRef.current,shouldAnimate:contentHash !== lastAnimatedHashRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-
   // Fonction récursive pour traiter les enfants et remplacer le texte par des mots individuels
   const processChildren = (children, parentKey = "root") => {
     return Children.map(children, (child, index) => {
@@ -109,35 +105,21 @@ export default function AnimatedText({ children, animationKey }) {
   useEffect(() => {
     // Ne relancer l'animation que si le hash a changé (nouveau contenu ou nouvelle animationKey)
     if (contentHash === lastAnimatedHashRef.current) {
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:113',message:'Animation skipped - same hash',data:{contentHash,lastAnimatedHash:lastAnimatedHashRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
       return;
     }
 
     // Attendre que le DOM soit mis à jour pour que wordKeysRef soit rempli
     // Utiliser requestAnimationFrame pour s'assurer que processedContent est rendu
     const timeoutId = requestAnimationFrame(() => {
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:113',message:'Animation useEffect triggered - new content',data:{contentHash,lastAnimatedHash:lastAnimatedHashRef.current,animationKey},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
-
       // Marquer ce hash comme animé AVANT de démarrer l'animation
       lastAnimatedHashRef.current = contentHash;
       setVisibleWords(new Set());
 
       const wordKeys = Array.from(wordKeysRef.keys());
-      
+
       if (wordKeys.length === 0) {
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:131',message:'No words found, skipping animation',data:{contentHash},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
         return;
       }
-
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/20425fee-131b-46b5-a3ae-b90e1e9591f5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AnimatedText.jsx:135',message:'Starting animation',data:{wordCount:wordKeys.length,contentHash},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
 
       // Mélanger aléatoirement l'ordre d'apparition
       const shuffledKeys = [...wordKeys].sort(() => Math.random() - 0.5);
