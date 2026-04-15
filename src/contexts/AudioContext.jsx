@@ -19,6 +19,8 @@ export function AudioProvider({ children }) {
   const analyserRef = useRef(null);
   const sourceRef = useRef(null);
   const gainNodeRef = useRef(null);
+  const pendingPlayRef = useRef(false);
+  const isAudioReadyRef = useRef(false);
 
   useEffect(() => {
     // Initialiser l'AudioContext
@@ -73,6 +75,21 @@ export function AudioProvider({ children }) {
         }
         if (!fileLoaded) {
           console.warn('Aucun fichier audio trouvé. Placez un fichier dans /public/audio/');
+        } else {
+          isAudioReadyRef.current = true;
+          // Si play() a été appelé avant la fin du chargement, on joue maintenant
+          if (pendingPlayRef.current) {
+            pendingPlayRef.current = false;
+            if (audioContextRef.current.state === 'suspended') {
+              await audioContextRef.current.resume();
+            }
+            try {
+              await audioElementRef.current.play();
+              setIsPlaying(true);
+            } catch (error) {
+              console.error('Erreur lors de la lecture différée:', error);
+            }
+          }
         }
       } catch (error) {
         console.error('Erreur lors de l\'initialisation audio:', error);
@@ -102,16 +119,22 @@ export function AudioProvider({ children }) {
   }, [volume, isMuted]);
 
   const play = async () => {
-    if (audioContextRef.current && audioElementRef.current) {
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
-      }
-      try {
-        await audioElementRef.current.play();
-        setIsPlaying(true);
-      } catch (error) {
-        console.error('Erreur lors de la lecture:', error);
-      }
+    if (!audioContextRef.current || !audioElementRef.current) return;
+
+    // Si l'audio n'est pas encore chargé, on mémorise la demande
+    if (!isAudioReadyRef.current) {
+      pendingPlayRef.current = true;
+      return;
+    }
+
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
+    }
+    try {
+      await audioElementRef.current.play();
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Erreur lors de la lecture:', error);
     }
   };
 

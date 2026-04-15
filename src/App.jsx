@@ -1,10 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Desktop from "./components/Desktop/Desktop.jsx";
 import BootScreen from "./components/BootScreen/BootScreen.jsx";
 import MobileView from "./components/MobileView/MobileView.jsx";
-import { AudioProvider } from "./contexts/AudioContext";
+import { AudioProvider, useAudio } from "./contexts/AudioContext";
 import { useIsMobile } from "./hooks/useIsMobile";
 import "./App.css";
+
+// Déclenche la musique dès que le boot est terminé
+function AudioBootController({ isBooting }) {
+    const { play } = useAudio();
+    const hasPlayed = useRef(false);
+
+    useEffect(() => {
+        if (!isBooting && !hasPlayed.current) {
+            hasPlayed.current = true;
+            play();
+        }
+    }, [isBooting, play]);
+
+    return null;
+}
 
 export default function App() {
     const isMobile = useIsMobile();
@@ -28,6 +43,7 @@ export default function App() {
 
     return (
         <AudioProvider>
+            <AudioBootController isBooting={isBooting} />
             {isBooting && <BootScreen onBootComplete={handleBootComplete} />}
             <div className={isBooting ? "desktop-hidden" : "desktop-visible"}>
                 {isMobile
