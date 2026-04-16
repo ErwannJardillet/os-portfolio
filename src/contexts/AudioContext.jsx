@@ -1,190 +1,176 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useRef, useEffect } from 'react';
 
-const AudioContext = createContext(null);
+const AudioCtx = createContext(null);
+
+const AUDIO_FILES = ['/audio/ambient.mp3', '/audio/ambient1.mp3', '/audio/music.mp3'];
+const DEFAULT_VOLUME = 0.2;
 
 export function AudioProvider({ children }) {
-  const [volume, setVolume] = useState(() => {
+  const [isPlaying, setIsPlaying]   = useState(false);
+  const [isMuted,   setIsMuted]     = useState(false);
+  const [volume,    setVolumeState] = useState(() => {
     const saved = localStorage.getItem('audioVolume');
-    return saved ? parseFloat(saved) : 0.5;
+    return saved ? parseFloat(saved) : DEFAULT_VOLUME;
   });
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  
-  const [analyser, setAnalyserState] = useState(null);
-  const [audioContextObj, setAudioContextObj] = useState(null);
+  const [analyser, setAnalyser] = useState(null);
 
-  const audioContextRef = useRef(null);
-  const audioElementRef = useRef(null);
-  const analyserRef = useRef(null);
-  const sourceRef = useRef(null);
-  const gainNodeRef = useRef(null);
-  const pendingPlayRef = useRef(false);
-  const isAudioReadyRef = useRef(false);
+  // Refs — survivent aux re-renders sans déclencher d'effets
+  const audioRef   = useRef(null); // HTMLAudioElement
+  const ctxRef     = useRef(null); // AudioContext (Web Audio)
+  const gainRef    = useRef(null); // GainNode (volume)
+  const wantPlay   = useRef(false);// true = l'utilisateur veut jouer mais le navigateur bloque
 
+  // ─── Construction du graph Web Audio (une seule fois) ──────────────────────
+  // Appelé juste avant le premier play() pour que l'AudioContext soit créé
+  // dans un contexte favorable (après que le navigateur ait accepté play()).
+  const buildGraph = () => {
+    if (ctxRef.current) return; // déjà construit
+
+    const Klass = window.AudioContext || window.webkitAudioContext;
+    const ctx   = new Klass();
+    ctxRef.current = ctx;
+
+    const gain = ctx.createGain();
+    gain.gain.value = DEFAULT_VOLUME;
+    gainRef.current = gain;
+
+    const node = ctx.createAnalyser();
+    node.fftSize = 2048;
+    node.smoothingTimeConstant = 0.05;
+    setAnalyser(node);
+
+    const source = ctx.createMediaElementSource(audioRef.current);
+    source.connect(gain);
+    gain.connect(node);
+    node.connect(ctx.destination);
+  };
+
+  // ─── Tentative de lecture ───────────────────────────────────────────────────
+  // Retourne true si la lecture a démarré ET que l'AudioContext est actif.
+  // Retourne false si bloqué par le navigateur, ou si l'AudioContext reste
+  // suspended malgré resume() (autoplay policy sans gesture utilisateur).
+  const tryPlay = async () => {
+    const audio = audioRef.current;
+    if (!audio?.src) return false;
+
+    try {
+      buildGraph();
+
+      if (ctxRef.current.state === 'suspended') {
+        await ctxRef.current.resume();
+      }
+
+      await audio.play();
+
+      // Vérification critique : audio.play() peut réussir sans erreur
+      // même si l'AudioContext reste suspendu (son routé dans le silence).
+      // Chrome suspend l'AudioContext dès sa création sans gesture utilisateur,
+      // et resume() resolve sans changer l'état dans ce cas.
+      if (ctxRef.current.state === 'suspended') {
+        // L'audio HTMLElement joue mais passe par un graph silencieux.
+        // On annule et on laisse wantPlay=true pour retry au prochain clic.
+        audio.pause();
+        audio.currentTime = 0;
+        return false;
+      }
+
+      wantPlay.current = false;
+      setIsPlaying(true);
+      return true;
+    } catch {
+      // NotAllowedError = autoplay bloqué, AbortError = audio pas prêt, etc.
+      return false;
+    }
+  };
+
+  // ─── Initialisation au montage ─────────────────────────────────────────────
   useEffect(() => {
-    // Initialiser l'AudioContext
-    const initAudio = async () => {
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        const ctx = new AudioContextClass();
-        audioContextRef.current = ctx;
-        setAudioContextObj(ctx);
+    const audio = new Audio();
+    audio.loop   = true;
+    audio.volume = 1; // le volume est géré par le GainNode, pas ici
+    audioRef.current = audio;
 
-        // Créer l'élément audio
-        const audio = new Audio();
-        audio.loop = true;
-        audio.crossOrigin = 'anonymous';
-        audioElementRef.current = audio;
+    // Chargement du premier fichier audio disponible
+    (async () => {
+      for (const file of AUDIO_FILES) {
+        const ok = await new Promise(resolve => {
+          audio.src = file;
+          audio.oncanplaythrough = () => resolve(true);
+          audio.onerror          = () => resolve(false);
+          audio.load();
+        });
+        if (ok) break;
+        audio.src = '';
+      }
 
-        // Créer l'analyser avec une meilleure réactivité
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 2048; // Plus de détails pour une meilleure visualisation
-        analyser.smoothingTimeConstant = 0.05; // Plus réactif (0.3 au lieu de 0.8)
-        analyserRef.current = analyser;
-        setAnalyserState(analyser);
+      // Si play() a été demandé pendant le chargement, on réessaie maintenant
+      if (wantPlay.current) {
+        tryPlay();
+      }
+    })();
 
-        // Créer le gain node pour le volume
-        const gainNode = ctx.createGain();
-        gainNode.gain.value = isMuted ? 0 : volume;
-        gainNodeRef.current = gainNode;
-
-        // Connecter : audio -> gain -> analyser -> destination
-        const source = ctx.createMediaElementSource(audio);
-        source.connect(gainNode);
-        gainNode.connect(analyser);
-        analyser.connect(ctx.destination);
-        sourceRef.current = source;
-
-        // Charger le premier fichier audio disponible
-        const audioFiles = ['/audio/ambient1.mp3', '/audio/ambient.mp3', '/audio/music.mp3'];
-        let fileLoaded = false;
-        for (const file of audioFiles) {
-          try {
-            audio.src = file;
-            await new Promise((resolve, reject) => {
-              audio.oncanplaythrough = resolve;
-              audio.onerror = reject;
-              audio.load();
-            });
-            fileLoaded = true;
-            break;
-          } catch {
-            console.log(`Fichier ${file} non trouvé, essai suivant...`);
-          }
-        }
-        if (!fileLoaded) {
-          console.warn('Aucun fichier audio trouvé. Placez un fichier dans /public/audio/');
-        } else {
-          isAudioReadyRef.current = true;
-          // Si play() a été appelé avant la fin du chargement, on joue maintenant
-          if (pendingPlayRef.current) {
-            pendingPlayRef.current = false;
-            if (audioContextRef.current.state === 'suspended') {
-              await audioContextRef.current.resume();
-            }
-            try {
-              await audioElementRef.current.play();
-              setIsPlaying(true);
-            } catch (error) {
-              console.error('Erreur lors de la lecture différée:', error);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors de l\'initialisation audio:', error);
+    // Handler de déblocage : au premier clic ou touche, on réessaie si en attente
+    const unlock = async () => {
+      if (!wantPlay.current) return;
+      const ok = await tryPlay();
+      if (ok) {
+        window.removeEventListener('click',   unlock);
+        window.removeEventListener('keydown', unlock);
       }
     };
-
-    initAudio();
+    window.addEventListener('click',   unlock);
+    window.addEventListener('keydown', unlock);
 
     return () => {
-      if (audioElementRef.current) {
-        audioElementRef.current.pause();
-        audioElementRef.current = null;
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
+      window.removeEventListener('click',   unlock);
+      window.removeEventListener('keydown', unlock);
+      audio.pause();
+      ctxRef.current?.close();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ─── Sync volume / mute → GainNode ─────────────────────────────────────────
   useEffect(() => {
-    if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = isMuted ? 0 : volume;
+    if (gainRef.current) {
+      gainRef.current.gain.value = isMuted ? 0 : volume;
     }
-    localStorage.setItem('audioVolume', volume.toString());
+    localStorage.setItem('audioVolume', String(volume));
   }, [volume, isMuted]);
 
+  // ─── API publique ───────────────────────────────────────────────────────────
   const play = async () => {
-    if (!audioContextRef.current || !audioElementRef.current) return;
-
-    // Si l'audio n'est pas encore chargé, on mémorise la demande
-    if (!isAudioReadyRef.current) {
-      pendingPlayRef.current = true;
-      return;
-    }
-
-    if (audioContextRef.current.state === 'suspended') {
-      await audioContextRef.current.resume();
-    }
-    try {
-      await audioElementRef.current.play();
-      setIsPlaying(true);
-    } catch (error) {
-      console.error('Erreur lors de la lecture:', error);
-    }
+    wantPlay.current = true;
+    await tryPlay();
+    // Si tryPlay() retourne false, wantPlay reste à true
+    // → le handler unlock() prendra le relais au prochain clic
   };
 
   const pause = () => {
-    if (audioElementRef.current) {
-      audioElementRef.current.pause();
-      setIsPlaying(false);
-    }
+    audioRef.current?.pause();
+    setIsPlaying(false);
   };
 
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
-    }
+  const togglePlayPause = () => (isPlaying ? pause() : play());
+
+  const setVolume = (v) => {
+    const clamped = Math.max(0, Math.min(1, v));
+    setVolumeState(clamped);
+    if (clamped > 0) setIsMuted(false);
   };
 
-  const setVolumeValue = (newVolume) => {
-    const clampedVolume = Math.max(0, Math.min(1, newVolume));
-    setVolume(clampedVolume);
-    if (clampedVolume > 0) {
-      setIsMuted(false);
-    }
-  };
+  const toggleMute = () => setIsMuted(m => !m);
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  const value = {
-    volume,
-    isPlaying,
-    isMuted,
-    analyser,
-    audioContext: audioContextObj,
-    setVolume: setVolumeValue,
-    toggleMute,
-    play,
-    pause,
-    togglePlayPause,
-  };
-
-  return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;
+  return (
+    <AudioCtx.Provider value={{ volume, isPlaying, isMuted, analyser, setVolume, toggleMute, play, pause, togglePlayPause }}>
+      {children}
+    </AudioCtx.Provider>
+  );
 }
 
 export function useAudio() {
-  const context = useContext(AudioContext);
-  if (!context) {
-    throw new Error('useAudio must be used within AudioProvider');
-  }
-  return context;
+  const ctx = useContext(AudioCtx);
+  if (!ctx) throw new Error('useAudio must be used within AudioProvider');
+  return ctx;
 }

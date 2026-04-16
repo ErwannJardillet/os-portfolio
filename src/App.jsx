@@ -6,17 +6,17 @@ import { AudioProvider, useAudio } from "./contexts/AudioContext";
 import { useIsMobile } from "./hooks/useIsMobile";
 import "./App.css";
 
-// Déclenche la musique dès que le boot est terminé
-function AudioBootController({ isBooting }) {
+// Déclenche la musique quand la fenêtre Introduction apparaît
+function AudioBootController({ shouldPlay }) {
     const { play } = useAudio();
     const hasPlayed = useRef(false);
 
     useEffect(() => {
-        if (!isBooting && !hasPlayed.current) {
+        if (shouldPlay && !hasPlayed.current) {
             hasPlayed.current = true;
             play();
         }
-    }, [isBooting, play]);
+    }, [shouldPlay, play]);
 
     return null;
 }
@@ -43,7 +43,7 @@ export default function App() {
 
     return (
         <AudioProvider>
-            <AudioBootController isBooting={isBooting} />
+            <AudioBootController shouldPlay={shouldOpenIntroduction} />
             {isBooting && <BootScreen onBootComplete={handleBootComplete} />}
             <div className={isBooting ? "desktop-hidden" : "desktop-visible"}>
                 {isMobile
